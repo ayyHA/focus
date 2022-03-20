@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev
+
+  application:
+    name: user-service
+
+  cloud:
+    # 配置nacos配置管理
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        # 开发环境dev的命名空间
+        namespace: 837aca09-8665-4671-b28b-4cc00ef934c3

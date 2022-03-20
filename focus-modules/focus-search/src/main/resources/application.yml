@@ -1,0 +1,22 @@
+# 端口
+server:
+  port: 9004
+
+# 应用名称
+spring:
+  application:
+    name: search-service
+
+  cloud:
+    # 配置nacos服务发现
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    # 配置sentinel负责流量控制、服务熔断
+    sentinel:
+      eager: true
+      transport:
+        dashboard: 127.0.0.1:8858
+        port: 8719
+
+
