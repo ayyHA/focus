@@ -1,0 +1,15 @@
+# 端口
+server:
+  port: 10000
+# 应用名称 此为认证中心
+spring:
+  application:
+    name: auth-server
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+# 允许bean多次注入，加载时后发现的会覆盖前面的bean
+  main:
+    allow-bean-definition-overriding: true

@@ -18,6 +18,14 @@ spring:
         locator:
           enabled: true
       routes:
+        # 以下是认证中心的路由配置
+        - id: auth-server
+          uri: lb://auth-server
+          predicates:
+            - Path=/oauth/**
+          filters:
+            - StripPrefix=1
+        # 以下是业务模块的路由配置
         - id: user-service
           uri: lb://user-service
           predicates:
@@ -59,3 +67,23 @@ spring:
             - Path=/chat/**
           filters:
             - StripPrefix=1
+  # 对redis进行配置
+  redis:
+    host: 127.0.0.1
+    password: 19991125
+    port: 6379
+    timeout: 15000
+    jedis:
+      pool:
+        max-active: 600
+        max-idle: 300
+        max-wait: 15000
+        min-idle: 10
+
+# 配置网关白名单，直接放行
+oauth2:
+  cloud:
+    sys:
+      parameter:
+        ignoreUrls:
+          - /oauth/**
