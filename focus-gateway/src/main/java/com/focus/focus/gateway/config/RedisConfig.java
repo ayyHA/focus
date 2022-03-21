@@ -23,7 +23,6 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 @Configuration
@@ -53,6 +52,10 @@ public class RedisConfig {
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
 
+    /**
+     * 定义缓冲池
+     * @return JedisPool instance
+     */
     @Bean
     public JedisPool redisPoolFactory() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
@@ -65,19 +68,22 @@ public class RedisConfig {
         }
     }
 
+    /**
+     * 自定义cache key的生成方式，原生的容易冲突，故需要自定义
+     * 此处采用 类名 + 方法名 + toString后的参数生成key
+     * @return KeyGenerator Instance
+     */
     @Bean
     public KeyGenerator keyGenerator() {
-        return new KeyGenerator() {
-            @Override
-            public Object generate(Object target, Method method, Object... params) {
+        return (target,method,params) -> {
                 StringBuilder sb = new StringBuilder();
                 sb.append(target.getClass().getName());
                 sb.append(method.getDeclaringClass().getName());
                 Arrays.stream(params).map(Object::toString).forEach(sb::append);
                 return sb.toString();
-            }
         };
     }
+
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
