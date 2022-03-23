@@ -7,6 +7,9 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenEndpointFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
+/**
+ * 主要是重写这个类的afterPropertiesSet。处理客户端凭证异常的错误，通过我们重写的AuthenticationEntryPoint来提示错误信息
+ */
 public class OAuthServerClientCredentialsTokenEndpointFilter extends ClientCredentialsTokenEndpointFilter {
     private final AuthorizationServerSecurityConfigurer configurer;
 

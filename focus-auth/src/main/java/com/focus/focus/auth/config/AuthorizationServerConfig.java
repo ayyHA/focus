@@ -29,7 +29,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private TokenStore tokenStore;
 
-    /* 客户端存储策略 */
+    /* 客户端存储策略，目前是存在内存中 */
     @Autowired
     private ClientDetailsService clientDetailsService;
 
@@ -43,7 +43,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private OAuthServerAuthenticationEntryPoint authenticationEntryPoint;
 
-    /* 令牌管理服务的配置 */
+    /* 令牌管理（令牌创建、令牌获取、令牌刷新等）服务的配置 */
     @Bean
     public AuthorizationServerTokenServices tokenServices(){
         DefaultTokenServices services = new DefaultTokenServices();
@@ -99,16 +99,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         // 暂定内存模式，后续可以存储在数据库中，更加方便
         clients.inMemory()
                 //客户端id
-                .withClient("myjszl")
+                .withClient("ayyHA")
                 //客户端秘钥
-                .secret(new BCryptPasswordEncoder().encode("123"))
+                .secret(new BCryptPasswordEncoder().encode("123456"))
                 //资源id，唯一，比如订单服务作为一个资源,可以设置多个
                 //授权模式，总共四种，1. authorization_code（授权码模式）、password（密码模式）、client_credentials（客户端模式）、implicit（简化模式）
                 //refresh_token并不是授权模式，
                 .authorizedGrantTypes("authorization_code","password","client_credentials","implicit","refresh_token")
                 //允许的授权范围，客户端的权限，这里的all只是一种标识，可以自定义，为了后续的资源服务进行权限控制
                 .scopes("all")
-                //false 则跳转到授权页面
+                //取消自动允许授权，会跳到手工确认授权的页面
                 .autoApprove(false)
                 //授权码模式的回调地址
                 .redirectUris("http://www.baidu.com");

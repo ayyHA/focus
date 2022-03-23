@@ -1,4 +1,4 @@
-package com.focus.focus.gateway.config;
+package com.focus.focus.gateway.config.redis;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;

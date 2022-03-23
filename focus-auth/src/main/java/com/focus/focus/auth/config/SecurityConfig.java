@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * 配置用户
+     * 配置用户信息验证点
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -52,13 +52,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+             // 开启配置
         http.authorizeRequests()
+             // 表示执行任意请求时都需要认证
             .anyRequest().authenticated()
             .and()
+             // 启用基本登录功能
             .formLogin()
             .loginProcessingUrl("/login")
             .permitAll()
             .and()
+             // 禁用csrf防护，便于postman测试
             .csrf().disable();
     }
 }
