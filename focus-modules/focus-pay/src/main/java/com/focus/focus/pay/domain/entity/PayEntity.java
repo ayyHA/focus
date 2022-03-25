@@ -19,7 +19,8 @@ public class PayEntity implements Serializable {
     @EmbeddedId
     private PayId id;
 
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            insertable = false,updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 

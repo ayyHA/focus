@@ -48,12 +48,14 @@ public class GlobalAuthenticationFilter implements GlobalFilter, Ordered {
         String requestUrl = exchange.getRequest().getPath().value();
         // 白名单放行，如：授权服务、静态资源
         if(checkUrls(sysParameterConfig.getIgnoreUrls(),requestUrl)){
+            log.info("URL:{}被放行了",requestUrl);
             return chain.filter(exchange);
         }
 
         // 检查token是否存在
         String token = getToken(exchange);
         if(StringUtils.isBlank(token)){
+            log.info("TOKEN不存在");
             return invalidTokenMono(exchange);
         }
 
@@ -76,6 +78,7 @@ public class GlobalAuthenticationFilter implements GlobalFilter, Ordered {
             ServerWebExchange build = exchange.mutate().request(userInfoRequest).build();
             return chain.filter(build);
         } catch (InvalidTokenException e){
+            log.info("TOKEN解析出错");
             return invalidTokenMono(exchange);
         }
     }

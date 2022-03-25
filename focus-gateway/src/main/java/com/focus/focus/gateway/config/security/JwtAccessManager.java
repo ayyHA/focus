@@ -1,6 +1,8 @@
 package com.focus.focus.gateway.config.security;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.StrUtil;
 import com.focus.auth.common.model.SysConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,11 @@ public class JwtAccessManager implements ReactiveAuthorizationManager<Authorizat
                 // 获取认证后的全部权限（其实就是角色）
                 .flatMapIterable(Authentication::getAuthorities)
                 .map(GrantedAuthority::getAuthority)
-                .any(authorities::contains)
+                .any(authority->{
+                    if(StrUtil.equals(SysConstant.ROLE_ADMIN_CODE,authority) || StrUtil.equals(SysConstant.ROLE_USER_CODE,authority))
+                        return true;
+                    return CollectionUtil.isNotEmpty(authorities) && authorities.contains(authority);
+                })
                 .map(AuthorizationDecision::new)
                 .defaultIfEmpty(new AuthorizationDecision(false));
     }

@@ -52,16 +52,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-             // 开启配置
+             // 配置资源的访问权限
         http.authorizeRequests()
              // 表示执行任意请求时都需要认证
             .anyRequest().authenticated()
             .and()
-             // 启用基本登录功能
-            .formLogin()
-            .loginProcessingUrl("/login")
-            .permitAll()
-            .and()
+             // 禁用自带的表单登录，前后端分离用不上
+            .formLogin().disable()
+//            .loginProcessingUrl("/login")
+//            .permitAll()
+//            .and()
              // 禁用csrf防护，便于postman测试
             .csrf().disable();
     }

@@ -44,7 +44,8 @@ public class UserEntity implements Serializable{
     /**
      * 用户注册时间
      */
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            insertable = false,updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 

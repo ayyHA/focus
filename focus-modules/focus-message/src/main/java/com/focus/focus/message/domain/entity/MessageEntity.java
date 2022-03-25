@@ -27,7 +27,8 @@ public class MessageEntity implements Serializable {
     @Column(name = "author_id", length = 32)
     private String authorId;
 
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            insertable = false,updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 
