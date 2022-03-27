@@ -1,9 +1,6 @@
 package com.focus.focus.user.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,6 +15,7 @@ import java.util.Date;
 @EqualsAndHashCode(of = "Id")
 @Table(name = "focus_friendship")
 @Entity
+@Builder
 public class FriendshipEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

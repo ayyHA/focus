@@ -1,10 +1,7 @@
 package com.focus.focus.message.domain.entity;
 
 import com.focus.focus.api.enumerate.MessageOperateTypeEnum;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,6 +13,7 @@ import java.util.Date;
 @Table(name = "focus_message_operate")
 @Entity
 @EqualsAndHashCode(of = "id")
+@Builder
 public class MessageOperateEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

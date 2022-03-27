@@ -20,20 +20,20 @@ public class CorsFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        if(CorsUtils.isCorsRequest(request)){
+        if (CorsUtils.isCorsRequest(request)) {
             HttpHeaders requestHeaders = request.getHeaders();
             ServerHttpResponse response = exchange.getResponse();
             HttpMethod requestMethod = requestHeaders.getAccessControlRequestMethod();
-            HttpHeaders responseHeaders = response.getHeaders();
-            responseHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,requestHeaders.getOrigin());
-            responseHeaders.addAll(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,requestHeaders.getAccessControlRequestHeaders());
-            if(requestMethod != null){
-                responseHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,requestMethod.name());
+            HttpHeaders headers = response.getHeaders();
+            headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, requestHeaders.getOrigin());
+            headers.addAll(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, requestHeaders.getAccessControlRequestHeaders());
+            if (requestMethod != null) {
+                headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, requestMethod.name());
             }
-            responseHeaders.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,"true");
-            responseHeaders.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,"*");
-            responseHeaders.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE,"18000L");
-            if(request.getMethod() == HttpMethod.OPTIONS){
+            headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+            headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "*");
+            headers.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "18000L");
+            if (request.getMethod() == HttpMethod.OPTIONS) {
                 response.setStatusCode(HttpStatus.OK);
                 return Mono.empty();
             }

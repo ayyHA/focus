@@ -1,10 +1,7 @@
 package com.focus.focus.user.domain.entity;
 
 import com.focus.focus.api.enumerate.GenderEnum;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Data
+@Builder
 public class UserEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;

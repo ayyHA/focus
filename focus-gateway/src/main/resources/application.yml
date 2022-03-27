@@ -25,6 +25,7 @@ spring:
             - Path=/oauth/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
         # 以下是业务模块的路由配置
         - id: user-service
           uri: lb://user-service
@@ -32,6 +33,7 @@ spring:
             - Path=/user/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
         - id: message-service
           uri: lb://message-service
@@ -39,6 +41,7 @@ spring:
             - Path=/message/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
         - id: push-service
           uri: lb://push-service
@@ -46,6 +49,7 @@ spring:
             - Path=/push/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
         - id: search-service
           uri: lb://search-service
@@ -53,6 +57,7 @@ spring:
             - Path=/search/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
         - id: pay-service
           uri: lb://pay-service
@@ -60,6 +65,7 @@ spring:
             - Path=/pay/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
         - id: chat-service
           uri: lb://chat-service
@@ -67,6 +73,7 @@ spring:
             - Path=/chat/**
           filters:
             - StripPrefix=1
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
   # 对redis进行配置
   redis:
     host: 127.0.0.1
@@ -87,6 +94,8 @@ oauth2:
       parameter:
         ignoreUrls:
           - /oauth/**
+          - /user/signUp
+          - /oauth/signUp
 #          - /oauth/authorize
 #          - /oauth/token
 #          - /oauth/check_token

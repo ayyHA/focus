@@ -54,6 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
              // 配置资源的访问权限
         http.authorizeRequests()
+            .antMatchers("/signUp").permitAll()
+//            .antMatchers("/user/signUp").permitAll()
              // 表示执行任意请求时都需要认证
             .anyRequest().authenticated()
             .and()
@@ -63,6 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //            .permitAll()
 //            .and()
              // 禁用csrf防护，便于postman测试
+//            .cors().and()
             .csrf().disable();
     }
 }

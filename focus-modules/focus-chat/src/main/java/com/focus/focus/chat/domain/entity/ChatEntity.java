@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "focus_chat")
+@Builder
 public class ChatEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

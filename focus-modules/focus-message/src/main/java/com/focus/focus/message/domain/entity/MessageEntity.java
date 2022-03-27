@@ -14,6 +14,7 @@ import java.util.Date;
 @Table(name = "focus_message")
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"messagePublicDataEntity"})
+@Builder
 public class MessageEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

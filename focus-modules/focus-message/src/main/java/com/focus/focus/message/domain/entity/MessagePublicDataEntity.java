@@ -1,6 +1,7 @@
 package com.focus.focus.message.domain.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Table(name = "focus_message_public_data")
 @Entity
+@Builder
 public class MessagePublicDataEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

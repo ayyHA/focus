@@ -49,6 +49,15 @@ public class GlobalAuthenticationFilter implements GlobalFilter, Ordered {
         // 白名单放行，如：授权服务、静态资源
         if(checkUrls(sysParameterConfig.getIgnoreUrls(),requestUrl)){
             log.info("URL:{}被放行了",requestUrl);
+//            exchange.getRequest().getBody().subscribe(
+//                    buffer -> {
+//                        byte[] bytes = new byte[buffer.readableByteCount()];
+//                        buffer.read(bytes);
+//                        DataBufferUtils.release(buffer);
+//                        String bodyString = new String(bytes);
+//                        log.info("bodyString:{}",bodyString);
+//                    }
+//            );
             return chain.filter(exchange);
         }
 

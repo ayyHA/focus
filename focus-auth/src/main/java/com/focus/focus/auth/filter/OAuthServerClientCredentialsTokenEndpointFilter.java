@@ -1,5 +1,6 @@
 package com.focus.focus.auth.filter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.common.exceptions.BadClientCredentialsException;
@@ -10,6 +11,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 /**
  * 主要是重写这个类的afterPropertiesSet。处理客户端凭证异常的错误，通过我们重写的AuthenticationEntryPoint来提示错误信息
  */
+@Slf4j
 public class OAuthServerClientCredentialsTokenEndpointFilter extends ClientCredentialsTokenEndpointFilter {
     private final AuthorizationServerSecurityConfigurer configurer;
 
@@ -34,8 +36,10 @@ public class OAuthServerClientCredentialsTokenEndpointFilter extends ClientCrede
     public void afterPropertiesSet(){
         setAuthenticationFailureHandler((request,response,exception)->{
             if(exception instanceof BadCredentialsException){
+                log.info("Client Credential Exception1");
                 exception = new BadCredentialsException(exception.getMessage(),new BadClientCredentialsException());
             }
+            log.info("Client Credential Exception2");
             authenticationEntryPoint.commence(request,response,exception);
         });
         setAuthenticationSuccessHandler((request,response,authentication)->{});

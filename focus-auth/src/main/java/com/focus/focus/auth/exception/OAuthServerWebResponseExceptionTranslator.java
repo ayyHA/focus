@@ -17,7 +17,8 @@ public class OAuthServerWebResponseExceptionTranslator implements WebResponseExc
     @Override
     public ResponseEntity translate(Exception e) throws Exception {
         ResultMsg resultMsg = doTranslateHandler(e);
-        return new ResponseEntity<>(resultMsg, HttpStatus.UNAUTHORIZED);
+        // 设置状态为200，方便前端设置提示信息，不然给浏览器给截掉了
+        return new ResponseEntity<>(resultMsg, HttpStatus.OK);
     }
 
     private ResultMsg doTranslateHandler(Exception e){

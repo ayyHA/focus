@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .authorizeExchange()
                 // 白名单直接放行
                 .pathMatchers(ArrayUtil.toArray(sysConfig.getIgnoreUrls(),String.class)).permitAll()
+                // 注册放行
                 // 其他的请求必须鉴权
                 .anyExchange().access(accessManager)
                 // 鉴权异常处理

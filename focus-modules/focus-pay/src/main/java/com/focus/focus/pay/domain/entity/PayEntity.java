@@ -13,6 +13,7 @@ import java.util.Date;
 @Table(name = "focus_pay")
 @Data
 @EqualsAndHashCode(of = "id")
+@Builder
 public class PayEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
