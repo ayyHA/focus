@@ -81,6 +81,7 @@ public class GlobalAuthenticationFilter implements GlobalFilter, Ordered {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(TokenConstant.PRINCIPAL_NAME, username);
             jsonObject.put(TokenConstant.AUTHORITIES_NAME, authorities);
+            log.info("GlobalAuthenticationFilter UserInfo :{},{}",username,authorities.toString());
             // 将用户信息通过base64加密后放入请求头中，便于业务服务获取用户信息
             String userInfo = Base64.encode(jsonObject.toJSONString());
             ServerHttpRequest userInfoRequest = exchange.getRequest().mutate().header(TokenConstant.TOKEN_NAME, userInfo).build();

@@ -1,5 +1,6 @@
 package com.focus.focus.message.domain.entity;
 
+import com.focus.focus.api.enumerate.MessageGrantType;
 import com.focus.focus.api.enumerate.MessageTypeEnum;
 import lombok.*;
 
@@ -45,6 +46,10 @@ public class MessageEntity implements Serializable {
 
     @Column(name = "keywords", length = 32)
     private String keywords;
+
+    @Column(name = "grant_type",length = 16)
+    @Enumerated(EnumType.STRING)
+    private MessageGrantType grantType;
 
 //    @ManyToOne(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "be_quoted_message",referencedColumnName = "id",

@@ -1,6 +1,7 @@
 package com.focus.focus.user.domain.entity;
 
 import com.focus.focus.api.enumerate.GenderEnum;
+import com.focus.focus.api.enumerate.LangSelect;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -47,7 +48,7 @@ public class UserEntity implements Serializable{
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 
-    @Column(name = "description", length = 50)
+    @Column(name = "description", length = 120)
     private String description;
 
     @Column(name = "birthday", columnDefinition = "DATE")
@@ -67,16 +68,17 @@ public class UserEntity implements Serializable{
     /**
      * 用户画像背景图
      */
-    @Column(name = "profile_image_url", length = 60)
+    @Column(name = "profile_image_url", length = 255)
     private String profileImageUrl;
 
-    @Column(name = "lang", length = 10)
-    private String lang;
+    @Column(name = "lang", length = 24)
+    @Enumerated(EnumType.STRING)
+    private LangSelect lang;
 
     /**
      * 用户头像
      */
-    @Column(name = "avatar_url", length = 60)
+    @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
 
     /**

@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.focus.auth.common.model.LoginVal;
 import com.focus.auth.common.model.RequestConstant;
 import com.focus.auth.common.model.TokenConstant;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -20,6 +22,8 @@ import java.io.IOException;
  * 采用Base64解码
  * 此过滤器用于解密网关传递的用户信息，将其放入request中，便于业务模块使用
  */
+@Slf4j
+@Component
 public class DecodeAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 从header获取token,将其内携带的用户信息解析出来（解密->转为JSONObject->获取username和authorities）
@@ -43,6 +47,7 @@ public class DecodeAuthenticationFilter extends OncePerRequestFilter {
             loginVal.setUsername(principal);
             loginVal.setAuthorities(authorities);
             httpServletRequest.setAttribute(RequestConstant.LOGIN_VAL_ATTRIBUTE,loginVal);
+            log.info("DecodeAuthenticationFilter LoginVal: {} ",loginVal.toString());
         }
         filterChain.doFilter(httpServletRequest,httpServletResponse);
     }
