@@ -1,8 +1,10 @@
 package com.focus.focus.user.service;
 
-import com.focus.focus.user.domain.entity.UserEntity;
+import com.focus.focus.api.dto.UserInfoDto;
 
 public interface IUserService {
     Boolean updateUserAvatar(String path);
-    UserEntity getUserInfoByUsername(String username);
+    Boolean updateUserBackground(String path);
+    UserInfoDto getUserInfoByUsername(String username);
+    UserInfoDto updateUserDetails(UserInfoDto dto);
 }

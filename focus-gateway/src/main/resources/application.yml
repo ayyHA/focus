@@ -96,7 +96,3 @@ oauth2:
           - /oauth/**
           - /user/signUp
           - /oauth/signUp
-#          - /oauth/authorize
-#          - /oauth/token
-#          - /oauth/check_token
-#          - /oauth/token_key

@@ -41,7 +41,7 @@ public class MessageOperateEntity implements Serializable {
     @AllArgsConstructor
     @EqualsAndHashCode(of = {"userId","messageId"})
     @Embeddable
-    private static class MessageOperateId implements Serializable{
+    public static class MessageOperateId implements Serializable{
         private static final long serialVersionUID = 1L;
 
         @Column(name = "user_id",length = 32)

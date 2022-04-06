@@ -1,4 +1,4 @@
-package com.focus.focus.api.dto;
+package com.focus.focus.api.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -47,7 +47,7 @@ public class DecodeAuthenticationFilter extends OncePerRequestFilter {
             loginVal.setUsername(principal);
             loginVal.setAuthorities(authorities);
             httpServletRequest.setAttribute(RequestConstant.LOGIN_VAL_ATTRIBUTE,loginVal);
-            log.info("DecodeAuthenticationFilter LoginVal: {} ",loginVal.toString());
+//            log.info("DecodeAuthenticationFilter LoginVal: {} ",loginVal.toString());
         }
         filterChain.doFilter(httpServletRequest,httpServletResponse);
     }

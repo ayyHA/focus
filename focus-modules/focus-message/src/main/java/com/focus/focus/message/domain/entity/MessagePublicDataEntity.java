@@ -35,7 +35,8 @@ public class MessagePublicDataEntity implements Serializable {
 //    @Column(name = "quote_count")
 //    private Long quoteCount;
 
-    @MapsId("messageId")
+//    @MapsId("messageId")
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "message_id", referencedColumnName = "id", foreignKey
             = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

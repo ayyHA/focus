@@ -29,12 +29,12 @@
             <artifactId>focus-api</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <!-- 七牛云OSS -->
-        <dependency>
-            <groupId>com.qiniu</groupId>
-            <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.2.7</version>
-        </dependency>
+<!--        &lt;!&ndash; 七牛云OSS &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.qiniu</groupId>-->
+<!--            <artifactId>qiniu-java-sdk</artifactId>-->
+<!--            <version>7.2.7</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

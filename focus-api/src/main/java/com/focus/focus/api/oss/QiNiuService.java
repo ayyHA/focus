@@ -1,4 +1,4 @@
-package com.focus.focus.user.service.impl;
+package com.focus.focus.api.oss;
 
 import com.alibaba.fastjson.JSONObject;
 import com.focus.focus.api.util.FileUtil;
@@ -39,6 +39,39 @@ public class QiNiuService {
     // 简单上传，使用默认策略，只需要设置上传的空间名就可以了
     private String getUpToken() {
         return auth.uploadToken(bucketName);
+    }
+
+    public String saveImage(MultipartFile file) throws IOException {
+        try {
+            // 文件名，判断.
+            int dotPos = file.getOriginalFilename().lastIndexOf(".");
+            if (dotPos < 0) {
+                return null;
+            }
+            // 截取文件后缀
+            String fileExt = file.getOriginalFilename().substring(dotPos + 1).toLowerCase();
+            // 判断是否是合法的文件后缀
+            if (!FileUtil.isFileAllowed(fileExt)) {
+                return null;
+            }
+
+            // UUID随机生成文件名
+            String fileName = UUID.randomUUID().toString().replaceAll("-", "") + "." + fileExt;
+            // 调用put方法上传
+            Response res = uploadManager.put(file.getBytes(), fileName, getUpToken());
+            // 打印返回的信息
+            if (res.isOK() && res.isJson()) {
+                // 返回这张存储照片的地址
+                return QINIU_IMAGE_DOMAIN + JSONObject.parseObject(res.bodyString()).get("key");
+            } else {
+                logger.error("七牛异常:" + res.bodyString());
+                return null;
+            }
+        } catch (QiniuException e) {
+            // 请求失败时打印的异常的信息
+            logger.error("七牛异常:" + e.getMessage());
+            return null;
+        }
     }
 
     public String saveImage(MultipartFile file,String fileName) throws IOException {
