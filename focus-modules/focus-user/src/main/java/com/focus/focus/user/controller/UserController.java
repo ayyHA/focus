@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -100,5 +101,19 @@ public class UserController {
         log.info("{} Controller",resDto.toString());
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.USER_UPDATE_DETAILS_SUCCESS.getCode(),
                 ResponseCode.USER_UPDATE_DETAILS_SUCCESS.getMsg(),data));
+    }
+
+    // 批量获取用户信息
+    @GetMapping("/getUserInfoDtos")
+    public List<UserInfoDto> getUserInfoDtos(@RequestParam("ids") List<String> ids){
+        List<UserInfoDto> userInfoDTOs = userService.getUserInfoDTOs(ids);
+        return userInfoDTOs;
+    }
+
+    // 获取单个用户信息
+    @GetMapping("/getUserInfoDto")
+    public UserInfoDto getUserInfoDto(@RequestParam("username") String username){
+        UserInfoDto userInfoDto = userService.getUserInfoByUsername(username);
+        return userInfoDto;
     }
 }

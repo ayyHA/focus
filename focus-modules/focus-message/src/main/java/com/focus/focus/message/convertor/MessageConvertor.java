@@ -13,6 +13,7 @@ public class MessageConvertor extends BaseConvertor<MessageEntity,MessageDto> {
     public Function<MessageEntity, MessageDto> functionConvertToDTO() {
         return (messageEntity) -> {
             return MessageDto.builder()
+                    .id(messageEntity.getId())
                     .text(messageEntity.getText())
                     .images(messageEntity.getImages())
                     .authorId(messageEntity.getAuthorId())

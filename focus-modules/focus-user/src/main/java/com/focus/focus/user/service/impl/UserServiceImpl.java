@@ -1,5 +1,6 @@
 package com.focus.focus.user.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.focus.auth.common.model.LoginVal;
 import com.focus.auth.common.utils.OauthUtils;
@@ -13,7 +14,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -88,5 +91,19 @@ public class UserServiceImpl implements IUserService {
         log.info("updateUserInfo dto birthday: {}",resDto.getBirthday());
 //        resDto.setBirthday(dateOfBirthday);
         return resDto;
+    }
+
+    @Override
+    public List<UserInfoDto> getUserInfoDTOs(List<String> ids){
+        if(CollectionUtil.isEmpty(ids))
+            return null;    // ids为空
+//        List<UserEntity> entities = userRepository.findAllById(ids);
+        List<UserEntity> entities = new ArrayList<>();
+        ids.forEach(id->{userRepository.findById(id).ifPresent(userEntity -> entities.add(userEntity));});
+        log.info("entities: => [{}]",entities.toString());
+        if(CollectionUtil.isEmpty(entities))
+            return null;    // ids非空，但数据错误
+        List<UserInfoDto> userInfoDtos = (List<UserInfoDto>)userInfoConvertor.convertToDTOList(entities);
+        return userInfoDtos;
     }
 }

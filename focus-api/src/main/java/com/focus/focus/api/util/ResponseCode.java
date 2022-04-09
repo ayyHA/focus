@@ -17,6 +17,8 @@ public enum ResponseCode {
     MESSAGE_UPLOAD_MULTI_IMAGES_SUCCESS(2004,"讯息图像上传成功"),
     MESSAGE_PUBLISH_ERROR(2005,"讯息发布失败"),
     MESSAGE_PUBLISH_SUCCESS(2006,"讯息发布成功"),
+    MESSAGE_SHOW_ERROR(2011,"讯息获取失败"),
+    MESSAGE_SHOW_SUCCESS(2012,"讯息获取成功"),
     /* ...Repository错误 */
     USER_REPOSITORY_ERROR(3001,"用户DAO层错误"),
     MESSAGE_REPOSITORY_ERROR(3002,"讯息DAO层错误"),

@@ -1,6 +1,8 @@
 package com.focus.focus.api.base;
 
+import java.util.Collection;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class BaseConvertor<ENTITY,DTO>{
     /**
@@ -47,5 +49,34 @@ public abstract class BaseConvertor<ENTITY,DTO>{
      */
     public ENTITY convertToEntity(DTO dto){
         return convertToEntity().apply(dto);
+    }
+
+    /* 以下为集合版的ENTITY和DTO互相转换 */
+    public Function<Collection<ENTITY>,Collection<DTO>> functionConvertToDTOList(){
+        return entities ->
+            entities.stream().
+            map(functionConvertToDTO()).collect(Collectors.toList());
+    }
+
+    public Function<Collection<DTO>,Collection<ENTITY>> functionConvertToEntityList(){
+        return dtos ->
+                dtos.stream().
+                map(functionConvertToEntity()).collect(Collectors.toList());
+    }
+
+    public Function<Collection<ENTITY>,Collection<DTO>> convertToDTOList(){
+        return functionConvertToDTOList();
+    }
+
+    public Function<Collection<DTO>,Collection<ENTITY>> convertToEntityList(){
+        return functionConvertToEntityList();
+    }
+
+    public Collection<DTO> convertToDTOList(Collection<ENTITY> entities){
+        return convertToDTOList().apply(entities);
+    }
+
+    public Collection<ENTITY> convertToEntityList(Collection<DTO> dtos){
+        return convertToEntityList().apply(dtos);
     }
 }

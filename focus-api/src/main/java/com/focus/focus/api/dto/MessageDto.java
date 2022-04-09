@@ -17,7 +17,8 @@ import java.util.Date;
 public class MessageDto implements Serializable {
 
     private final static long serialVersionUID = 1L;
-
+    // message的id
+    private Long id;
     // 存放message的文本内容，含emoji表情
     private String text;
     // 存放系列图片的url，以","相隔

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.focus.focus.api.dto.MessageDto;
+import com.focus.focus.api.dto.MessageInfoDto;
 import com.focus.focus.api.oss.QiNiuService;
 import com.focus.focus.api.util.ResponseCode;
 import com.focus.focus.api.util.ResponseMsg;
@@ -11,10 +12,7 @@ import com.focus.focus.message.service.IMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -76,5 +74,19 @@ public class MessageController {
         }
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PUBLISH_SUCCESS.getCode(),
                 ResponseCode.MESSAGE_PUBLISH_SUCCESS.getMsg(),null));
+    }
+
+    // 展示讯息，目前仅是从数据库分页显示
+    @GetMapping("/showMessage")
+    public ResponseEntity<ResponseMsg> showMessages(@RequestParam("page") Integer page){
+        List<MessageInfoDto> messageInfoDtoList = messageService.showMessage(page);
+        if(CollectionUtil.isEmpty(messageInfoDtoList)){
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_SHOW_ERROR.getCode(),
+                    ResponseCode.MESSAGE_SHOW_ERROR.getMsg(),null));
+        }
+        Map<String,List<MessageInfoDto>> data = new HashMap<>();
+        data.put("messageInfoDtos",messageInfoDtoList);
+        return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_SHOW_SUCCESS.getCode(),
+                ResponseCode.MESSAGE_SHOW_SUCCESS.getMsg(),data));
     }
 }

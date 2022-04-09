@@ -1,6 +1,5 @@
 package com.focus.focus.message.domain.entity;
 
-import com.focus.focus.api.enumerate.MessageOperateTypeEnum;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,15 +9,15 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "focus_message_operate")
+@Table(name = "focus_message_like")
 @Entity
 @EqualsAndHashCode(of = "id")
 @Builder
-public class MessageOperateEntity implements Serializable {
+public class LikeEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EmbeddedId
-    private MessageOperateId id;
+    private LikeId id;
 
     @MapsId("messageId")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,9 +25,9 @@ public class MessageOperateEntity implements Serializable {
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private MessageEntity messageEntity;
 
-    @Column(name = "type",length = 10)
-    @Enumerated(EnumType.STRING)
-    private MessageOperateTypeEnum type;
+//    @Column(name = "type",length = 10)
+//    @Enumerated(EnumType.STRING)
+//    private MessageOperateTypeEnum type;
 
     @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
             insertable = false,updatable = false)
@@ -41,7 +40,7 @@ public class MessageOperateEntity implements Serializable {
     @AllArgsConstructor
     @EqualsAndHashCode(of = {"userId","messageId"})
     @Embeddable
-    public static class MessageOperateId implements Serializable{
+    public static class LikeId implements Serializable{
         private static final long serialVersionUID = 1L;
 
         @Column(name = "user_id",length = 32)
