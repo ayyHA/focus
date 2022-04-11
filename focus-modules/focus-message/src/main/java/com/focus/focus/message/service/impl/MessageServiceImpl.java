@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.focus.auth.common.model.LoginVal;
 import com.focus.auth.common.utils.OauthUtils;
 import com.focus.focus.api.dto.*;
+import com.focus.focus.api.enumerate.LikeStatus;
 import com.focus.focus.api.enumerate.MessageTypeEnum;
 import com.focus.focus.api.feign.UserClient;
 import com.focus.focus.message.convertor.MessageConvertor;
@@ -15,6 +16,7 @@ import com.focus.focus.message.domain.entity.LikeEntity;
 import com.focus.focus.message.domain.entity.MessageEntity;
 import com.focus.focus.message.domain.entity.MessagePublicDataEntity;
 import com.focus.focus.message.service.IMessageService;
+import com.focus.focus.message.service.IRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,8 @@ public class MessageServiceImpl implements IMessageService {
     private MessagePublicDataRepository publicDataRepository;
     @Autowired
     private LikeRepository likeRepository;
+    @Autowired
+    private IRedisService redisService;
     // 远程调用User模块的方法
     private final UserClient userClient;
 
@@ -86,24 +90,30 @@ public class MessageServiceImpl implements IMessageService {
             likeIds.add(new LikeEntity.LikeId(currentUserInfoDto.getId(),message.getId()));
         });
         // 获取MessagePublicDataDtos
-        List<MessagePublicDataEntity> publicDataEntities = publicDataRepository.findAllById(ids);
-        List<MessagePublicDataDto> publicDataDtos =
-                (List<MessagePublicDataDto>) messagePublicDataConvertor.convertToDTOList(publicDataEntities);
+        List<MessagePublicDataDto> publicDataDtos = getMessagePublicDataDtos(ids);
+//        List<MessagePublicDataEntity> publicDataEntities = publicDataRepository.findAllById(ids);
+//        List<MessagePublicDataDto> publicDataDtos =
+//                (List<MessagePublicDataDto>) messagePublicDataConvertor.convertToDTOList(publicDataEntities);
         // 获取UserInfoDtos(远程获取)
         List<UserInfoDto> userInfoDtos = userClient.getUserInfoDtos(authorIds);
         // 获取MessageStatusDtos
-        List<MessageStatusDto> statusDtos = new ArrayList<>();
-        likeIds.forEach(likeId ->{
-            MessageStatusDto statusDto = new MessageStatusDto();
-            Optional<LikeEntity> opLike = likeRepository.findById(likeId);
-            if(opLike.isPresent()) {
-                statusDto.setLikeStatus(true);
-            }
-            else
-                statusDto.setLikeStatus(false);
-            statusDto.setRetweetStatus(false);
-            statusDtos.add(statusDto);
-        });
+        List<MessageStatusDto> statusDtos = getMessageStatusDtos(likeIds);
+//        likeIds.forEach(likeId ->{
+//            MessageStatusDto statusDto = new MessageStatusDto();
+//            Optional<LikeEntity> opLike = likeRepository.findById(likeId);
+//            if(opLike.isPresent()) {
+//                LikeEntity likeEntity = opLike.get();
+//                LikeStatus likeStatus = likeEntity.getLikeStatus();
+//                if(likeStatus==LikeStatus.like)
+//                    statusDto.setLikeStatus(true);
+//                else
+//                    statusDto.setLikeStatus(false);
+//            }
+//            else
+//                statusDto.setLikeStatus(false);
+//            statusDto.setRetweetStatus(false); // 后面增加
+//            statusDtos.add(statusDto);
+//        });
         // 组装MessageInfoDtos
         List<MessageInfoDto> messageInfoDtoList = new ArrayList<>();
         ids.forEach(id ->{
@@ -118,5 +128,39 @@ public class MessageServiceImpl implements IMessageService {
             messageInfoDtoList.add(messageInfoDto);
         });
         return messageInfoDtoList;
+    }
+    // 获取MessageStatusDtos
+    private List<MessageStatusDto> getMessageStatusDtos(List<LikeEntity.LikeId> likeIds){
+        List<MessageStatusDto> statusDtos = new ArrayList<>();
+        likeIds.forEach(likeId ->{
+            MessageStatusDto statusDto = new MessageStatusDto();
+            Optional<LikeEntity> opLike = likeRepository.findById(likeId);
+            if(opLike.isPresent()) {
+                LikeEntity likeEntity = opLike.get();
+                LikeStatus likeStatus = likeEntity.getLikeStatus();
+                if(likeStatus==LikeStatus.like)
+                    statusDto.setLikeStatus(true);
+                else
+                    statusDto.setLikeStatus(false);
+                // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
+                redisService.transLikeToRedis(likeEntity);
+            }
+            else
+                statusDto.setLikeStatus(false);
+            statusDto.setRetweetStatus(false); // 后面增加
+            statusDtos.add(statusDto);
+        });
+        return statusDtos;
+    }
+    // 获取MessagePublicDataDtos
+    private List<MessagePublicDataDto> getMessagePublicDataDtos(List<Long> ids){
+        List<MessagePublicDataEntity> publicDataEntities = publicDataRepository.findAllById(ids);
+        List<MessagePublicDataDto> publicDataDtos =
+                (List<MessagePublicDataDto>) messagePublicDataConvertor.convertToDTOList(publicDataEntities);
+        // 将公共数据写入redis中
+        publicDataEntities.forEach(publicDataEntity -> {
+            redisService.transLikeCountToRedis(publicDataEntity);
+        });
+        return publicDataDtos;
     }
 }

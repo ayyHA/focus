@@ -19,6 +19,10 @@ public enum ResponseCode {
     MESSAGE_PUBLISH_SUCCESS(2006,"讯息发布成功"),
     MESSAGE_SHOW_ERROR(2011,"讯息获取失败"),
     MESSAGE_SHOW_SUCCESS(2012,"讯息获取成功"),
+    MESSAGE_LIKE_ERROR(2013,"点赞失败"),
+    MESSAGE_LIKE_SUCCESS(2014,"点赞成功"),
+    MESSAGE_UNLIKE_ERROR(2015,"取消点赞失败"),
+    MESSAGE_UNLIKE_SUCCESS(2016,"取消点赞成功"),
     /* ...Repository错误 */
     USER_REPOSITORY_ERROR(3001,"用户DAO层错误"),
     MESSAGE_REPOSITORY_ERROR(3002,"讯息DAO层错误"),
