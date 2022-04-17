@@ -5,9 +5,9 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.focus.auth.common.model.LoginVal;
 import com.focus.auth.common.model.RequestConstant;
 import com.focus.auth.common.model.TokenConstant;
+import com.focus.focus.api.util.LoginVal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,6 +17,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+//import com.focus.auth.common.model.LoginVal;
 
 /**
  * 采用Base64解码

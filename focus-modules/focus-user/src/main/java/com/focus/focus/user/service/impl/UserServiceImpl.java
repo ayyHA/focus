@@ -2,9 +2,9 @@ package com.focus.focus.user.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.focus.auth.common.model.LoginVal;
 import com.focus.auth.common.utils.OauthUtils;
 import com.focus.focus.api.dto.UserInfoDto;
+import com.focus.focus.api.util.LoginVal;
 import com.focus.focus.user.convertor.UserInfoConvertor;
 import com.focus.focus.user.dao.UserRepository;
 import com.focus.focus.user.domain.entity.UserEntity;
@@ -14,10 +14,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+//import com.focus.auth.common.model.LoginVal;
 
 @Slf4j
 @Service
@@ -64,6 +63,18 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public UserInfoDto getUserInfoById(String userId) {
+        Optional<UserEntity> opEntity = userRepository.findById(userId);
+        UserEntity userEntity = null;
+        if(opEntity.isPresent())
+            userEntity = opEntity.get();
+        else
+            return null;
+        UserInfoDto userInfoDto = userInfoConvertor.convertToDTO(userEntity);
+        return userInfoDto;
+    }
+
+    @Override
     public UserInfoDto updateUserDetails(UserInfoDto dto){
         LoginVal loginVal = OauthUtils.getCurrentUser();
         UserEntity entity = userRepository.findByUsername(loginVal.getUsername());
@@ -104,6 +115,21 @@ public class UserServiceImpl implements IUserService {
         if(CollectionUtil.isEmpty(entities))
             return null;    // ids非空，但数据错误
         List<UserInfoDto> userInfoDtos = (List<UserInfoDto>)userInfoConvertor.convertToDTOList(entities);
+        return userInfoDtos;
+    }
+
+    @Override
+    public List<UserInfoDto> searchByNickname(String nickname) {
+        // 判断字串非空
+        if(StringUtils.isEmpty(nickname))
+            return null;
+        // 模糊匹配
+        List<UserEntity> userEntities = userRepository.findByNicknameContaining(nickname);
+        // 判断集合非空
+        if(CollectionUtil.isEmpty(userEntities))
+            return null;
+        // 类型转换
+        List<UserInfoDto> userInfoDtos = (List<UserInfoDto>) userInfoConvertor.convertToDTOList(userEntities);
         return userInfoDtos;
     }
 }

@@ -27,6 +27,7 @@ public class LikeJob extends QuartzJobBean {
         // 同步Redis的数据至MySQL中
         likeService.transLikeFromRedisToDB();
         publicDataService.transLikeCountFromRedisToDB();
-        // 将messagePublicData数据重新装载?
+        // 推送用户获得新的点赞信息
+        likeService.sendLikeNotification();
     }
 }

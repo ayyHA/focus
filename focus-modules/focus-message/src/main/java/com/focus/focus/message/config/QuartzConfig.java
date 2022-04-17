@@ -13,6 +13,7 @@ public class QuartzConfig {
     public JobDetail likeJobDetail(){
         return JobBuilder.newJob(LikeJob.class)
                 .withIdentity(LIKE_JOB_IDENTITY)
+                // 无trigger关联亦无需删除此JobDetail
                 .storeDurably().build();
     }
 
@@ -20,8 +21,9 @@ public class QuartzConfig {
     public Trigger likeJobTrigger(){
         SimpleScheduleBuilder scheduleBuilder =
                 SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInMinutes(10)      // Schedule容器10minsTrigger一次JobDetail里的Job
+                .withIntervalInMinutes(2)      // Schedule容器2minsTrigger一次JobDetail里的Job
                 .repeatForever();
+
         return TriggerBuilder.newTrigger()
                 .forJob(likeJobDetail())
                 .withIdentity(LIKE_JOB_IDENTITY)

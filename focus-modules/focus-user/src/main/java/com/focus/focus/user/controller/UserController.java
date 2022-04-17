@@ -1,5 +1,6 @@
 package com.focus.focus.user.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.focus.focus.api.dto.SysUserDto;
 import com.focus.focus.api.dto.UserInfoDto;
@@ -115,5 +116,24 @@ public class UserController {
     public UserInfoDto getUserInfoDto(@RequestParam("username") String username){
         UserInfoDto userInfoDto = userService.getUserInfoByUsername(username);
         return userInfoDto;
+    }
+
+    // 获取单个用户信息ByUserId
+    @GetMapping("getUserInfoDtoById")
+    public UserInfoDto getUserInfoDtoById(@RequestParam("userId") String userId){
+        UserInfoDto userInfoDto = userService.getUserInfoById(userId);
+        if(ObjectUtil.isEmpty(userInfoDto))
+            return null;
+        else
+            return userInfoDto;
+    }
+
+    // 搜索byNickname，搜索用户
+    @GetMapping("/searchByNickname")
+    public List<UserInfoDto> searchByNickname(@RequestParam("nickname") String nickname){
+        List<UserInfoDto> userInfoDtos = userService.searchByNickname(nickname);
+        if(CollectionUtil.isEmpty(userInfoDtos))
+            return null;
+        return userInfoDtos;
     }
 }

@@ -6,6 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.focus.focus.api.dto.MessageDto;
 import com.focus.focus.api.dto.MessageInfoDto;
 import com.focus.focus.api.oss.QiNiuService;
+import com.focus.focus.api.util.LoginVal;
 import com.focus.focus.api.util.ResponseCode;
 import com.focus.focus.api.util.ResponseMsg;
 import com.focus.focus.message.service.IMessageService;
@@ -21,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+//import com.focus.auth.common.model.LoginVal;
 
 @RestController
 @Slf4j
@@ -89,4 +92,18 @@ public class MessageController {
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_SHOW_SUCCESS.getCode(),
                 ResponseCode.MESSAGE_SHOW_SUCCESS.getMsg(),data));
     }
+
+    // 搜索byKeywords，搜索推文，这里改POST是因为报错[后期修改，feign的缘故]
+    @PostMapping("/searchByKeywords")
+    public List<MessageInfoDto> searchByKeywords(@RequestParam("keywords") String keywords,@RequestBody LoginVal currentUser){
+        // 根据keywords获取messageDto
+        List<MessageDto> messageDtos = messageService.searchByKeywords(keywords);
+        if(CollectionUtil.isEmpty(messageDtos))
+            return null;
+        // 根据messageDto获取messageInfoDto
+        List<MessageInfoDto> msgInfoDtos = messageService.getMsgInfoDtos(messageDtos,currentUser);
+        log.info("currentUser: [{}]",currentUser);
+        return msgInfoDtos;
+    }
+
 }

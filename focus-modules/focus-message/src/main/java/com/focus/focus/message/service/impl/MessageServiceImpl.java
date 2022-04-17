@@ -1,12 +1,13 @@
 package com.focus.focus.message.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.focus.auth.common.model.LoginVal;
 import com.focus.auth.common.utils.OauthUtils;
 import com.focus.focus.api.dto.*;
 import com.focus.focus.api.enumerate.LikeStatus;
 import com.focus.focus.api.enumerate.MessageTypeEnum;
 import com.focus.focus.api.feign.UserClient;
+import com.focus.focus.api.util.LoginVal;
 import com.focus.focus.message.convertor.MessageConvertor;
 import com.focus.focus.message.convertor.MessagePublicDataConvertor;
 import com.focus.focus.message.dao.LikeRepository;
@@ -19,6 +20,7 @@ import com.focus.focus.message.service.IMessageService;
 import com.focus.focus.message.service.IRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+//import com.focus.auth.common.model.LoginVal;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -91,29 +95,10 @@ public class MessageServiceImpl implements IMessageService {
         });
         // 获取MessagePublicDataDtos
         List<MessagePublicDataDto> publicDataDtos = getMessagePublicDataDtos(ids);
-//        List<MessagePublicDataEntity> publicDataEntities = publicDataRepository.findAllById(ids);
-//        List<MessagePublicDataDto> publicDataDtos =
-//                (List<MessagePublicDataDto>) messagePublicDataConvertor.convertToDTOList(publicDataEntities);
         // 获取UserInfoDtos(远程获取)
         List<UserInfoDto> userInfoDtos = userClient.getUserInfoDtos(authorIds);
         // 获取MessageStatusDtos
         List<MessageStatusDto> statusDtos = getMessageStatusDtos(likeIds);
-//        likeIds.forEach(likeId ->{
-//            MessageStatusDto statusDto = new MessageStatusDto();
-//            Optional<LikeEntity> opLike = likeRepository.findById(likeId);
-//            if(opLike.isPresent()) {
-//                LikeEntity likeEntity = opLike.get();
-//                LikeStatus likeStatus = likeEntity.getLikeStatus();
-//                if(likeStatus==LikeStatus.like)
-//                    statusDto.setLikeStatus(true);
-//                else
-//                    statusDto.setLikeStatus(false);
-//            }
-//            else
-//                statusDto.setLikeStatus(false);
-//            statusDto.setRetweetStatus(false); // 后面增加
-//            statusDtos.add(statusDto);
-//        });
         // 组装MessageInfoDtos
         List<MessageInfoDto> messageInfoDtoList = new ArrayList<>();
         ids.forEach(id ->{
@@ -129,6 +114,21 @@ public class MessageServiceImpl implements IMessageService {
         });
         return messageInfoDtoList;
     }
+
+    @Override
+    public List<MessageDto> searchByKeywords(String keywords) {
+        if(StringUtils.isEmpty(keywords))
+            return null;
+        // 模糊匹配
+        List<MessageEntity> messageEntities = messageRepository.findByKeywordsContaining(keywords);
+        // 判定是否为空
+        if(CollectionUtil.isEmpty(messageEntities))
+            return null;
+        // 非空则类型转换并返回
+        List<MessageDto> messageDtos = (List<MessageDto>) messageConvertor.convertToDTOList(messageEntities);
+        return messageDtos;
+    }
+
     // 获取MessageStatusDtos
     private List<MessageStatusDto> getMessageStatusDtos(List<LikeEntity.LikeId> likeIds){
         List<MessageStatusDto> statusDtos = new ArrayList<>();
@@ -162,5 +162,38 @@ public class MessageServiceImpl implements IMessageService {
             redisService.transLikeCountToRedis(publicDataEntity);
         });
         return publicDataDtos;
+    }
+
+    // 搜索调用的获取MessageInfoDtos[messageDto,messagePublicDto,userInfoDto,messageStatusDto]
+    @Override
+    public List<MessageInfoDto> getMsgInfoDtos(List<MessageDto> messageDtos,LoginVal loginVal){
+        List<Long> msgIds = new ArrayList<>();
+        List<String> authorIds = new ArrayList<>();
+        List<LikeEntity.LikeId> likeIds = new ArrayList<>();
+//        LoginVal loginVal = OauthUtils.getCurrentUser();
+        UserInfoDto currentUser = userClient.getUserInfoDto(loginVal.getUsername());
+        messageDtos.forEach( m ->{
+            msgIds.add(m.getId());
+            authorIds.add(m.getAuthorId());
+            likeIds.add(new LikeEntity.LikeId(currentUser.getId(),m.getId()));
+        });
+        // 获取messagePublicDataDto
+        List<MessagePublicDataDto> publicDataDtos = getMessagePublicDataDtos(msgIds);
+        // 获取userInfoDto
+        List<UserInfoDto> userInfoDtos = userClient.getUserInfoDtos(authorIds);
+        // 获取messageStatusDto
+        List<MessageStatusDto> statusDtos = getMessageStatusDtos(likeIds);
+        // 组装messageInfoDto
+        List<MessageInfoDto> messageInfoDtos = new ArrayList<>();
+        msgIds.forEach( msgId ->{
+            int idx = msgIds.indexOf(msgId);
+            MessageInfoDto infoDto = MessageInfoDto.builder()
+                    .messageDto(messageDtos.get(idx))
+                    .messagePublicDataDto(publicDataDtos.get(idx))
+                    .userInfoDto(userInfoDtos.get(idx))
+                    .messageStatusDto(statusDtos.get(idx)).build();
+            messageInfoDtos.add(infoDto);
+        });
+        return messageInfoDtos;
     }
 }

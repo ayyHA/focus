@@ -23,6 +23,11 @@ public enum ResponseCode {
     MESSAGE_LIKE_SUCCESS(2014,"点赞成功"),
     MESSAGE_UNLIKE_ERROR(2015,"取消点赞失败"),
     MESSAGE_UNLIKE_SUCCESS(2016,"取消点赞成功"),
+    // SEARCH
+    SEARCH_KEYWORDS_ERROR(2017,"根据关键字搜索失败"),
+    SEARCH_KEYWORDS_SUCCESS(2018,"根据关键字搜索成功"),
+    SEARCH_NICKNAME_ERROR(2019,"根据昵称搜索失败"),
+    SEARCH_NICKNAME_SUCCESS(2020,"根据昵称搜索成功"),
     /* ...Repository错误 */
     USER_REPOSITORY_ERROR(3001,"用户DAO层错误"),
     MESSAGE_REPOSITORY_ERROR(3002,"讯息DAO层错误"),

@@ -45,3 +45,9 @@ spring:
         max-idle: 300
         max-wait: 15000
         min-idle: 10
+  # 配置RabbitMQ
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: ayyHA
+    password: 123456aa

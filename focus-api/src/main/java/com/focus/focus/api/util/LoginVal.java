@@ -1,4 +1,4 @@
-package com.focus.auth.common.model;
+package com.focus.focus.api.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -4,10 +4,14 @@ import com.focus.focus.user.domain.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity,String> {
     // 根据username获取用户实体
-    public UserEntity findByUsername(String username);
+    UserEntity findByUsername(String username);
     // 根据username查是否存在
-    public Boolean existsByUsername(String username);
+    Boolean existsByUsername(String username);
+    // 模糊匹配nickname
+    List<UserEntity> findByNicknameContaining(String nickname);
 }

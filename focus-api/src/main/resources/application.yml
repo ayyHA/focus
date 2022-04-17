@@ -5,5 +5,5 @@ feign:
         # 建立连接超时
         connectTimeout: 1000
         # 通讯超时
-        readTimeout: 5000
+        readTimeout: 10000
 
