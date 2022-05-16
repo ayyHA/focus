@@ -31,8 +31,8 @@ public class AuthUserConvertor extends BaseConvertor<UserEntity, SysUserDto>{
                     .email(sysUserDto.getEmail())
                     .lang(LangSelect.chinese)
                     .dunDunCoin(0L)
-                    .avatarUrl("http://r9gseewjp.hn-bkt.clouddn.com/user.png")
-                    .profileImageUrl("http://r9gseewjp.hn-bkt.clouddn.com/profileImageUrl.png")
+                    .avatarUrl("http://qny.ayyha.store/user.png")
+                    .profileImageUrl("http://qny.ayyha.store/profileImageUrl.png")
                     .description("啥也没有...")
                     .build();
         };

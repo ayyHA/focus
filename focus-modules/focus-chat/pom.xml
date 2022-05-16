@@ -43,6 +43,23 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!--  WebSocket  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!-- 自定义redis包 -->
+        <dependency>
+            <groupId>com.focus</groupId>
+            <artifactId>redis-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- hutool工具包Util -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.17</version>
+        </dependency>
     </dependencies>
 
     <build>

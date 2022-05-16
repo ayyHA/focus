@@ -37,7 +37,7 @@ public class ChatEntity implements Serializable {
     @AllArgsConstructor
     @EqualsAndHashCode(of = {"sourceId","targetId"})
     @ToString(of={"sourceId","targetId"})
-    private static class ChatId implements Serializable {
+    public static class ChatId implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @Column(name = "source_id", length = 32)

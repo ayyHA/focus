@@ -23,7 +23,7 @@ public interface UserClient {
     UserInfoDto getUserInfoDto(@RequestParam("username") String username);
 
     // 获取单个用户信息ByUserId
-    @GetMapping("getUserInfoDtoById")
+    @GetMapping("/getUserInfoDtoById")
     UserInfoDto getUserInfoDtoById(@RequestParam("userId") String userId);
 
     // 搜索byNickname，搜索用户

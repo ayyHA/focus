@@ -21,7 +21,7 @@ public class QuartzConfig {
     public Trigger likeJobTrigger(){
         SimpleScheduleBuilder scheduleBuilder =
                 SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInMinutes(2)      // Schedule容器2minsTrigger一次JobDetail里的Job
+                .withIntervalInMinutes(2)      // Schedule容器 2minutes Trigger一次JobDetail里的Job
                 .repeatForever();
 
         return TriggerBuilder.newTrigger()

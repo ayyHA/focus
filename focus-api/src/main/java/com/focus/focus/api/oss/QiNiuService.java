@@ -34,7 +34,7 @@ public class QiNiuService {
     private UploadManager uploadManager = new UploadManager(cfg);
 
     // 测试域名，只有30天有效期
-    private final static String QINIU_IMAGE_DOMAIN = "http://r9gseewjp.hn-bkt.clouddn.com/";
+    private final static String QINIU_IMAGE_DOMAIN = "http://qny.ayyha.store/";
 
     // 简单上传，使用默认策略，只需要设置上传的空间名就可以了
     private String getUpToken() {

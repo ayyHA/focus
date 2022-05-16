@@ -28,6 +28,11 @@ public enum ResponseCode {
     SEARCH_KEYWORDS_SUCCESS(2018,"根据关键字搜索成功"),
     SEARCH_NICKNAME_ERROR(2019,"根据昵称搜索失败"),
     SEARCH_NICKNAME_SUCCESS(2020,"根据昵称搜索成功"),
+    // CHAT
+    CHAT_ZSET_ERROR(2021,"聊天列表信息为空"),
+    CHAT_ZSET_SUCCESS(2022,"聊天列表获取成功"),
+    CHAT_HISTORY_ERROR(2023,"历史聊天记录为空"),
+    CHAT_HISTORY_SUCCESS(2024,"历史聊天记录获取成功"),
     /* ...Repository错误 */
     USER_REPOSITORY_ERROR(3001,"用户DAO层错误"),
     MESSAGE_REPOSITORY_ERROR(3002,"讯息DAO层错误"),

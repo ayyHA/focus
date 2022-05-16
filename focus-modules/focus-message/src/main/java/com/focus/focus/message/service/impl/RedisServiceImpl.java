@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class RedisServiceImpl implements IRedisService {
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;
 
     // 1->like
     @Override

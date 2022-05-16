@@ -119,7 +119,7 @@ public class UserController {
     }
 
     // 获取单个用户信息ByUserId
-    @GetMapping("getUserInfoDtoById")
+    @GetMapping("/getUserInfoDtoById")
     public UserInfoDto getUserInfoDtoById(@RequestParam("userId") String userId){
         UserInfoDto userInfoDto = userService.getUserInfoById(userId);
         if(ObjectUtil.isEmpty(userInfoDto))
