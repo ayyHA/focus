@@ -58,6 +58,7 @@ public class ChatController {
             // 将ChatZSet同步到redis中 /*loadStatus:true-数据装载成功 false-无数据*/
             redisService.transChatZSetToRedis(userId);
         }
+        log.info("当前用户人数：" + onlineUserCount + "当前用户ID：" + userId);
     }
 
     // 关闭连接
@@ -84,11 +85,13 @@ public class ChatController {
     @GetMapping("/getChatZSet")
     public ResponseEntity<ResponseMsg> getChatZSet(@RequestParam("userId") String userId){
         List<ChatDto> chatDtos = redisService.getChatZSetFromRedis(userId);
+        log.info("Prepare1 out of getChatZSet [{}]",chatDtos);
         if(CollectionUtil.isEmpty(chatDtos))
             return ResponseEntity.ok(new ResponseMsg(ResponseCode.CHAT_ZSET_ERROR.getCode(),
                     ResponseCode.CHAT_ZSET_ERROR.getMsg(),null));
         Map<String,List<ChatDto>> data = new HashMap<>();
         data.put("chatDtos",chatDtos);
+        log.info("Prepare2 out of getChatZSet [{}]",chatDtos);
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.CHAT_ZSET_SUCCESS.getCode(),
                 ResponseCode.CHAT_ZSET_SUCCESS.getMsg(),data));
     }

@@ -41,6 +41,7 @@ public class SearchController {
     
     @GetMapping("/byNickname")
     public ResponseEntity<ResponseMsg> searchByNickname(@RequestParam("nickname") String nickname){
+//        log.info("I AM COMING {}",nickname);
         List<UserInfoDto> userInfoDtos = searchService.searchByNickname(nickname);
         // 匹配不到相关的昵称等价于匹配错误，返回如下
         if(CollectionUtil.isEmpty(userInfoDtos))
@@ -49,6 +50,7 @@ public class SearchController {
         // 匹配成功
         Map<String,List<UserInfoDto>> data = new HashMap<>();
         data.put("userInfoDtos",userInfoDtos);
+//        log.info("UserInfoDtos: => [{}]",userInfoDtos);
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.SEARCH_NICKNAME_SUCCESS.getCode(),
                 ResponseCode.SEARCH_NICKNAME_SUCCESS.getMsg(),data));
     }

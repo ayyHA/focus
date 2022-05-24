@@ -20,7 +20,7 @@ public class ChatEntity implements Serializable {
     private ChatId id;
 
     @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            insertable = false,updatable = false)
+           updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createAt;
 
