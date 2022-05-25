@@ -13,11 +13,11 @@ public interface IRedisService {
     // 将MySQL中的消息同步到Redis中，此用于历史聊天记录，list存储
     Boolean transChatHistoryToRedis(String userId,String talkId);
     // 获取Redis中的历史聊天记录
-    List<ChatDto> getChatHistoryFromRedis(String userId);
+    List<ChatDto> getChatHistoryFromRedis(String userId,String talkId);
     // 更新Redis中的聊天集合信息
     void updateChatZSetInRedis(String userId, String chatUserId, Date date);
     // 更新呢Redis中的历史聊天记录
-    void updateChatHistoryInRedis(String userId,ChatDto chatDto);
+    void updateChatHistoryInRedis(String userId,String talkId,ChatDto chatDto);
     // 是否存在该key，该key数据是否非零[ZSet]
     Boolean existZSetKeyAndNotEqZero(String key);
     // 是否存在该key，该key数据是否非零[list]

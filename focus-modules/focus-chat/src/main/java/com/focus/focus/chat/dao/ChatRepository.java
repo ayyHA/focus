@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface ChatRepository extends JpaRepository<ChatEntity,ChatEntity.ChatId> {
     // 寻找所有与sourceId相关的聊天记录
-    List<ChatEntity> findByIdSourceId(String sourceId);
+    List<ChatEntity> findByChatIdSourceId(String sourceId);
     // 寻找所有与targetId相关的聊天记录
-    List<ChatEntity> findByIdTargetId(String targetId);
+    List<ChatEntity> findByChatIdTargetId(String targetId);
     // 寻找匹配sourceId和targetId的聊天记录，用于获取历史消息
-    List<ChatEntity> findByIdSourceIdAndIdTargetId(String sourceId,String targetId);
+    List<ChatEntity> findByChatIdSourceIdAndChatIdTargetId(String sourceId,String targetId);
 }

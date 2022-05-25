@@ -31,10 +31,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @ServerEndpoint("/home/{userId}")
 public class ChatController {
+    private static IRedisService redisService;
     @Autowired
-    private IRedisService redisService;
+    public void setRedisService(IRedisService redisService){
+        ChatController.redisService = redisService;
+    }
+    private static IChatService chatService;
     @Autowired
-    private IChatService chatService;
+    public void setChatService(IChatService chatService){
+        ChatController.chatService  = chatService;
+    }
     // 在线用户数
     private static AtomicInteger onlineUserCount = new AtomicInteger(0);
     // 在线用户Map<userId,this>
@@ -47,6 +53,7 @@ public class ChatController {
     // 建立连接
     @OnOpen
     public void onOpen(@PathParam("userId")String userId,Session session){
+        log.info("enter ChatController");
         // 建立连接，将客户端信息进行记录
         this.session = session;
         this.userId = userId;
@@ -54,6 +61,7 @@ public class ChatController {
         onlineUserMap.put(userId,this);
         // 当Redis中聊天集合不存在或无数据时,去MySQL读数据过来
         String chatZSetKey = RedisKeyUtil.ZSET_KEY_CHAT_ZSET + userId;
+        log.info("chatZSetKey: [{}]",chatZSetKey);
         if(!redisService.existZSetKeyAndNotEqZero(chatZSetKey)) {
             // 将ChatZSet同步到redis中 /*loadStatus:true-数据装载成功 false-无数据*/
             redisService.transChatZSetToRedis(userId);
@@ -71,7 +79,9 @@ public class ChatController {
     // 收到客户端的消息
     @OnMessage
     public void onMessage(String message,Session session,@PathParam("userId") String userId){
+        log.info("message is [{}]",message);
         ChatEntity chatEntity = JSONObject.parseObject(message, ChatEntity.class);
+        log.info("chatentity is [{}]",chatEntity);
         send(chatEntity,userId);
     }
 
@@ -100,13 +110,13 @@ public class ChatController {
     @GetMapping("/getChatHistory")
     public ResponseEntity<ResponseMsg> getChatHistory(@RequestParam("userId") String userId,
                                                       @RequestParam("talkId") String talkId){
-        String chatHistoryKey = RedisKeyUtil.LIST_KEY_CHAT_HISTORY + userId;
+        String chatHistoryKey = RedisKeyUtil.LIST_KEY_CHAT_HISTORY + userId + ":" + talkId;
         // 为空或数据为零则同步下数据
         if(!redisService.existListKeyAndNotEqZero(chatHistoryKey)){
             redisService.transChatHistoryToRedis(userId,talkId);
         }
         // 从redis中读取数据
-        List<ChatDto> chatDtos = redisService.getChatHistoryFromRedis(userId);
+        List<ChatDto> chatDtos = redisService.getChatHistoryFromRedis(userId,talkId);
         if(CollectionUtil.isEmpty(chatDtos))
             return ResponseEntity.ok(new ResponseMsg(ResponseCode.CHAT_HISTORY_ERROR.getCode(),
                     ResponseCode.CHAT_HISTORY_ERROR.getMsg(),null));
@@ -118,26 +128,30 @@ public class ChatController {
 
     // 发送消息给客户端
     private void send(ChatEntity chatEntity,String userId){
-        String sourceId = chatEntity.getId().getSourceId();
-        String targetId = chatEntity.getId().getTargetId();
+        String sourceId = chatEntity.getChatId().getSourceId();
+        String targetId = chatEntity.getChatId().getTargetId();
         // 持久化
         ChatDto chatDto = chatService.updateChatEntity(chatEntity);
         // 获取chatUserId
         String chatUserId = userId.equals(sourceId) ?targetId:sourceId;
         // 更新redis
+        // 更新自己
         redisService.updateChatZSetInRedis(userId,chatUserId,chatEntity.getCreateAt());
-        redisService.updateChatHistoryInRedis(userId,chatDto);
+        redisService.updateChatHistoryInRedis(userId,chatUserId,chatDto);
+        // 更新ChatUser
+        redisService.updateChatZSetInRedis(chatUserId,userId,chatEntity.getCreateAt());
+        redisService.updateChatHistoryInRedis(chatUserId,userId,chatDto);
         // 将Object变成JSON字符串
         String JSONStr = JSON.toJSONString(chatDto);
         // 获取Controller以取得对应的session
         ChatController sourceController = onlineUserMap.get(sourceId);
         ChatController targetController = onlineUserMap.get(targetId);
-        // 给发送消息的用户推送
+        // 给发送消息的用户推送，在线的情况下
         if(sourceController!=null){
             Session session = sourceController.session;
             asyncSend(session,JSONStr);
         }
-        // 给接收消息的用户推送
+        // 给接收消息的用户推送，在线的情况下
         if(targetController!=null){{
             Session session = targetController.session;
             asyncSend(session,JSONStr);

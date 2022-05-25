@@ -21,8 +21,8 @@ public class ChatConvertor extends BaseConvertor<ChatEntity, ChatDto> {
                     .createAt(chatEntity.getCreateAt())
                     .status(chatEntity.getStatus())
                     .text(chatEntity.getText())
-                    .sourceUser(userClient.getUserInfoDtoById(chatEntity.getId().getSourceId()))
-                    .targetUser(userClient.getUserInfoDtoById(chatEntity.getId().getTargetId()))
+                    .sourceUser(userClient.getUserInfoDtoById(chatEntity.getChatId().getSourceId()))
+                    .targetUser(userClient.getUserInfoDtoById(chatEntity.getChatId().getTargetId()))
                     .build();
         };
     }
@@ -31,7 +31,7 @@ public class ChatConvertor extends BaseConvertor<ChatEntity, ChatDto> {
     public Function<ChatDto, ChatEntity> functionConvertToEntity() {
         return chatDto -> {
             return ChatEntity.builder()
-                    .id(new ChatEntity.ChatId(chatDto.getSourceUser().getId(),chatDto.getTargetUser().getId()))
+                    .chatId(new ChatEntity.ChatId(chatDto.getSourceUser().getId(),chatDto.getTargetUser().getId()))
                     .createAt(chatDto.getCreateAt())
                     .status(chatDto.getStatus())
                     .text(chatDto.getText())
