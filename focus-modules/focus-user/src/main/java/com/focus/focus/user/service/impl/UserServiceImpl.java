@@ -180,16 +180,14 @@ public class UserServiceImpl implements IUserService {
     private Integer getSignContinuous(String userId, Date date) {
         int dayOffset = DateUtil.dayOfMonth(date);
         String signKey = getSignKey(userId,date);
-        // bitfield signKey get uDayOffset 0 即获取到今日为止的本月的二进制位
-        BitFieldSubCommands bitFieldSubCommands = BitFieldSubCommands.create();
-        bitFieldSubCommands.get(BitFieldSubCommands.BitFieldType.unsigned(dayOffset)).valueAt(0);
         // 调用redisTemplate的bitfield方法
-        List<Long> list = redisTemplate.opsForValue().bitField(signKey, bitFieldSubCommands);
+        List<Long> list = bitField(signKey,dayOffset);
         if(list == null || list.isEmpty())
             return 0;
         // 连续签到天数
         int signContinuous = 0;
         long bits = list.get(0) == null ? 0 : list.get(0);
+        log.info("bits: [{}]",bits);
         // 通过位运算，对每一位（即每一天）的签到情况进行检验，当连续签到中断则返回连续签到天数
         for(int i = dayOffset;i>0;i--){
             // 右移再左移，校验最末位是否已签到，未签到则会相等
@@ -233,5 +231,12 @@ public class UserServiceImpl implements IUserService {
             userRepository.save(userEntity);
         }
         return incrCoin;
+    }
+
+    private List<Long> bitField(String signKey,int dayOffset){
+        return redisTemplate.execute((RedisCallback<List<Long>>) connection ->
+                // bitfield signKey get uDayOffset 0 即获取到今日为止的本月的二进制位
+                connection.bitField(signKey.getBytes(),BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType.unsigned(dayOffset)).valueAt(0)));
     }
 }
