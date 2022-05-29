@@ -11,7 +11,7 @@ import java.util.TimeZone;
 @EnableFeignClients(basePackages = "com.focus.focus.api")
 @EnableDiscoveryClient
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.focus.auth.common.security.filter","com.focus.focus.user","com.focus.focus.api.oss"})
+@ComponentScan(basePackages = {"com.focus.auth.common.security.filter","com.focus.focus.user","com.focus.focus.api.oss","com.focus.redis.common"})
 public class FocusUserApplication {
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));

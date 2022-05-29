@@ -2,6 +2,7 @@ package com.focus.focus.user.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.focus.focus.api.dto.SignDto;
 import com.focus.focus.api.dto.SysUserDto;
 import com.focus.focus.api.dto.UserInfoDto;
 import com.focus.focus.api.oss.QiNiuService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,5 +137,36 @@ public class UserController {
         if(CollectionUtil.isEmpty(userInfoDtos))
             return null;
         return userInfoDtos;
+    }
+
+    // 用户签到
+    @GetMapping("/doSign")
+    public ResponseEntity<ResponseMsg> doSign(@RequestParam("userId") String userId,
+                                              @RequestParam("date") Long date){
+        Date date_ = new Date(date);
+        SignDto signDto = userService.signFocus(userId, date_);
+        if(signDto==null)
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.USER_DONE_SIGN.getCode(),
+                    ResponseCode.USER_DONE_SIGN.getMsg(),null));
+        else{
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.USER_DO_SIGN.getCode(),
+                    ResponseCode.USER_DO_SIGN.getMsg(),signDto));
+        }
+    }
+
+    // 获取签到状态，即当日是否已经签到
+    @GetMapping("/getSignStatus")
+    public ResponseEntity<ResponseMsg> getSignStatus(@RequestParam("userId") String userId,
+                                                     @RequestParam("date") Long date){
+        Date date_ = new Date(date);
+        Boolean signStatus = userService.getSignStatus(userId, date_);
+        // 已签到
+        if(signStatus)
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.USER_HAS_SIGNED.getCode(),
+                    ResponseCode.USER_HAS_SIGNED.getMsg(),true));
+        // 未签到
+        else
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.USER_NOT_SIGN.getCode(),
+                    ResponseCode.USER_NOT_SIGN.getMsg(),false));
     }
 }

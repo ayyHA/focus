@@ -1,7 +1,9 @@
 package com.focus.focus.user.service;
 
+import com.focus.focus.api.dto.SignDto;
 import com.focus.focus.api.dto.UserInfoDto;
 
+import java.util.Date;
 import java.util.List;
 
 public interface IUserService {
@@ -12,4 +14,6 @@ public interface IUserService {
     UserInfoDto updateUserDetails(UserInfoDto dto);
     List<UserInfoDto> getUserInfoDTOs(List<String> ids);
     List<UserInfoDto> searchByNickname(String nickname);
+    SignDto signFocus(String userId,Date date);
+    Boolean getSignStatus(String userId,Date date);
 }

@@ -12,6 +12,10 @@ public enum ResponseCode {
     USER_UPLOAD_BACKGROUND_SUCCESS(2008,"用户背景图上传成功"),
     USER_UPDATE_DETAILS_ERROR(2009,"用户个人信息更新失败"),
     USER_UPDATE_DETAILS_SUCCESS(2010,"用户个人信息更新成功"),
+    USER_HAS_SIGNED(2025,"用户已签到"),
+    USER_NOT_SIGN(2026,"用户尚未签到"),
+    USER_DONE_SIGN(2027,"用户今日已签到"),
+    USER_DO_SIGN(2028,"用户签到成功"),
     // MESSAGE
     MESSAGE_UPLOAD_MULTI_IMAGES_ERROR(2003,"讯息图像上传失败"),
     MESSAGE_UPLOAD_MULTI_IMAGES_SUCCESS(2004,"讯息图像上传成功"),

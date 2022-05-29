@@ -54,6 +54,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 自定义redis包 -->
+        <dependency>
+            <groupId>com.focus</groupId>
+            <artifactId>redis-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
