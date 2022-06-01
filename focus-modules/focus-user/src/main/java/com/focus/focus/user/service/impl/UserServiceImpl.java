@@ -176,6 +176,17 @@ public class UserServiceImpl implements IUserService {
         return false;
     }
 
+    @Override
+    public Long getPinnedMessageId(String userId) {
+        Optional<UserEntity> opUser = userRepository.findById(userId);
+        if(opUser.isPresent()){
+            UserEntity userEntity = opUser.get();
+            Long pinnedMessageId = userEntity.getPinnedMessageId();
+            return pinnedMessageId;
+        }
+        return null;
+    }
+
     // 获取当月连续签到次数
     private Integer getSignContinuous(String userId, Date date) {
         int dayOffset = DateUtil.dayOfMonth(date);

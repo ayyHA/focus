@@ -106,4 +106,30 @@ public class MessageController {
         return msgInfoDtos;
     }
 
+    // 根据userId和pageNum返回对应的消息列表
+    @GetMapping("/getMessagesByAuthorId")
+    public ResponseEntity<ResponseMsg> getMessagesByAuthorId(@RequestParam("authorId") String authorId,
+                                                      @RequestParam("pageNum") int pageNum){
+        List<MessageInfoDto> msgInfoDtos = messageService.getMsgInfoDtosByAuthorId(authorId, pageNum);
+        if(CollectionUtil.isEmpty(msgInfoDtos)){
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_USER_ERROR.getCode(),
+                    ResponseCode.MESSAGE_OF_USER_ERROR.getMsg(),null));
+        }
+        Map<String,List<MessageInfoDto>> data = new HashMap<>();
+        data.put("msgInfoDtos",msgInfoDtos);
+        return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_USER_SUCCESS.getCode(),
+                ResponseCode.MESSAGE_OF_USER_SUCCESS.getMsg(),data));
+    }
+
+    // 获取userId的置顶消息
+    @GetMapping("/getPinnedMessage")
+    public ResponseEntity<ResponseMsg> getPinnedMessage(@RequestParam("userId") String userId){
+        MessageInfoDto pinnedMsgInfoDto = messageService.getPinnedMsgInfoDto(userId);
+        if(ObjectUtil.isEmpty(pinnedMsgInfoDto))
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PINNED_ERROR.getCode(),
+                    ResponseCode.MESSAGE_PINNED_ERROR.getMsg(),null));
+        else
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PINNED_SUCCESS.getCode(),
+                    ResponseCode.MESSAGE_PINNED_SUCCESS.getMsg(),pinnedMsgInfoDto));
+    }
 }

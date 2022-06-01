@@ -27,6 +27,10 @@ public enum ResponseCode {
     MESSAGE_LIKE_SUCCESS(2014,"点赞成功"),
     MESSAGE_UNLIKE_ERROR(2015,"取消点赞失败"),
     MESSAGE_UNLIKE_SUCCESS(2016,"取消点赞成功"),
+    MESSAGE_OF_USER_ERROR(2029,"用户讯息获取失败"),
+    MESSAGE_OF_USER_SUCCESS(2030,"用户讯息获取成功"),
+    MESSAGE_PINNED_ERROR(2031,"获取置顶讯息失败"),
+    MESSAGE_PINNED_SUCCESS(2032,"获取置顶讯息成功"),
     // SEARCH
     SEARCH_KEYWORDS_ERROR(2017,"根据关键字搜索失败"),
     SEARCH_KEYWORDS_SUCCESS(2018,"根据关键字搜索成功"),

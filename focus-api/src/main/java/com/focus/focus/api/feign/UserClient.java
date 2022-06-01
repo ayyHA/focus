@@ -29,4 +29,8 @@ public interface UserClient {
     // 搜索byNickname，搜索用户
     @GetMapping("/searchByNickname")
     List<UserInfoDto> searchByNickname(@RequestParam("nickname") String nickname);
+
+    // 获取置顶消息Id
+    @GetMapping("/getPinnedMessageId")
+    Long getPinnedMessageId(@RequestParam("userId") String userId);
 }

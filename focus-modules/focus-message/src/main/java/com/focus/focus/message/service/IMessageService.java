@@ -13,4 +13,6 @@ public interface IMessageService {
     List<MessageInfoDto> showMessage(Integer page);
     List<MessageDto> searchByKeywords(String keywords);
     List<MessageInfoDto> getMsgInfoDtos(List<MessageDto> messageDtos, LoginVal loginVal);
+    List<MessageInfoDto> getMsgInfoDtosByAuthorId(String authorId,Integer pageNum);
+    MessageInfoDto getPinnedMsgInfoDto(String userId);
 }

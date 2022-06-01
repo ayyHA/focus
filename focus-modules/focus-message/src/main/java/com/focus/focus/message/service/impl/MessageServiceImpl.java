@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -195,5 +196,94 @@ public class MessageServiceImpl implements IMessageService {
             messageInfoDtos.add(infoDto);
         });
         return messageInfoDtos;
+    }
+
+    // 根据消息发布者的Id和页号来获取对应的消息内容，可用于用户详情页和个人页
+    @Override
+    public List<MessageInfoDto> getMsgInfoDtosByAuthorId(String authorId, Integer pageNum) {
+        // 获取对应用户的消息列表
+        Page<MessageEntity> page = getPageByAuthorIdAndPageNum(authorId, pageNum);
+        List<MessageEntity> messageEntities = page.getContent();
+        // 获取其最大页数及message总数
+        int maxPages = page.getTotalPages();
+        long maxElements = page.getTotalElements();
+        log.info("messageEntities: [{}]",messageEntities);
+        List<MessageDto> messageDtos = (List<MessageDto>) messageConvertor.convertToDTOList(messageEntities);
+        // 通过msgIds和likeIds获取MessagePublicDataDtos和MessageStatusDtos
+        List<Long> msgIds = new ArrayList<>();
+        List<LikeEntity.LikeId> likeIds = new ArrayList<>();
+        // 获取当前用户的信息，便于后面判断其点赞状态
+        LoginVal loginVal = OauthUtils.getCurrentUser();
+        UserInfoDto currentUser = userClient.getUserInfoDto(loginVal.getUsername());
+        // 组装id
+        messageEntities.forEach(e->{
+            msgIds.add(e.getId());
+            likeIds.add(new LikeEntity.LikeId(currentUser.getId(),e.getId()));
+        });
+        // 获取messagePublicDataDtos
+        List<MessagePublicDataDto> messagePublicDataDtos = getMessagePublicDataDtos(msgIds);
+        // 获取messageStatusDtos
+        List<MessageStatusDto> messageStatusDtos = getMessageStatusDtos(likeIds);
+        // 获取作者信息
+        UserInfoDto authorDto = userClient.getUserInfoDtoById(authorId);
+        // 组装MessageInfoDtos
+        List<MessageInfoDto> messageInfoDtos = new ArrayList<>();
+        msgIds.forEach(id ->{
+            int idx = msgIds.indexOf(id);
+            messageInfoDtos.add(MessageInfoDto.builder()
+                    .messageDto(messageDtos.get(idx))
+                    .messagePublicDataDto(messagePublicDataDtos.get(idx))
+                    .messageStatusDto(messageStatusDtos.get(idx))
+                    .userInfoDto(authorDto)
+                    .maxPages(maxPages)
+                    .maxElements(maxElements).build());
+        });
+        return messageInfoDtos;
+    }
+
+    @Override
+    public MessageInfoDto getPinnedMsgInfoDto(String userId) {
+        Long pinnedMessageId = userClient.getPinnedMessageId(userId);
+        // 未设置pinnedMsgId
+        if(null == pinnedMessageId)
+            return null;
+        Optional<MessageEntity> opMsg = messageRepository.findById(pinnedMessageId);
+        if(opMsg.isPresent()){
+            MessageEntity messageEntity = opMsg.get();
+            Optional<MessagePublicDataEntity> opPublicDataEntity = publicDataRepository.findById(pinnedMessageId);
+            MessagePublicDataEntity messagePublicDataEntity = opPublicDataEntity.get();
+            UserInfoDto userInfoDto = userClient.getUserInfoDtoById(userId);
+            Optional<LikeEntity> opLike = likeRepository.findById(new LikeEntity.LikeId(userId, pinnedMessageId));
+            MessageStatusDto messageStatusDto = new MessageStatusDto();
+            if(opLike.isPresent()){
+                LikeEntity likeEntity = opLike.get();
+                LikeStatus likeStatus = likeEntity.getLikeStatus();
+                if ((likeStatus == LikeStatus.like)) {
+                    messageStatusDto.setLikeStatus(true);
+                } else {
+                    messageStatusDto.setLikeStatus(false);
+                }
+                // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
+                redisService.transLikeToRedis(likeEntity);
+            }
+            else
+                messageStatusDto.setLikeStatus(false);
+            messageStatusDto.setRetweetStatus(false);
+            return MessageInfoDto.builder()
+                    .messageDto(messageConvertor.convertToDTO(messageEntity))
+                    .messagePublicDataDto(messagePublicDataConvertor.convertToDTO(messagePublicDataEntity))
+                    .messageStatusDto(messageStatusDto)
+                    .userInfoDto(userInfoDto).build();
+        }
+        // pinnedMsgId错误,即不存在
+        return null;
+    }
+
+    // 根据userId和pageNum获取对应的MessageEntity
+    private Page<MessageEntity> getPageByAuthorIdAndPageNum(String authorId,Integer pageNum){
+        // 根据createAt倒序排列
+        Sort sort = Sort.by(Sort.Direction.DESC,"createAt");
+        PageRequest pageRequest = PageRequest.of(pageNum,2,sort);
+        return messageRepository.findByAuthorId(authorId, pageRequest);
     }
 }

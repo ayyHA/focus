@@ -169,4 +169,11 @@ public class UserController {
             return ResponseEntity.ok(new ResponseMsg(ResponseCode.USER_NOT_SIGN.getCode(),
                     ResponseCode.USER_NOT_SIGN.getMsg(),false));
     }
+
+    // 获取置顶消息Id
+    @GetMapping("/getPinnedMessageId")
+    public Long getPinnedMessageId(@RequestParam("userId") String userId){
+        Long pinnedMessageId = userService.getPinnedMessageId(userId);
+        return pinnedMessageId;
+    }
 }
