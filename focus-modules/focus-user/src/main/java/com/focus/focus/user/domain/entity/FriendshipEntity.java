@@ -1,5 +1,6 @@
 package com.focus.focus.user.domain.entity;
 
+import com.focus.focus.api.enumerate.FollowStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,20 +26,24 @@ public class FriendshipEntity implements Serializable {
     @EmbeddedId
     private FriendshipId id;
 
-    @MapsId("sourceId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_id",referencedColumnName = "id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private UserEntity sourceUser;
-
-    @MapsId("targetId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_id",referencedColumnName = "id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private UserEntity targetUser;
+//    @MapsId("sourceId")
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "source_id",referencedColumnName = "id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+//    private UserEntity sourceUser;
+//
+//    @MapsId("targetId")
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "target_id",referencedColumnName = "id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+//    private UserEntity targetUser;
 
     @Column(name = "follow_date",columnDefinition = "TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
     private Date followDate;
 
+    // 关注状态 0-取关 1-关注
+    @Column(name = "follow_status",length = 16)
+    @Enumerated(EnumType.STRING)
+    private FollowStatus followStatus;
     /**
      * 可嵌入类
      */

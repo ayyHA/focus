@@ -16,6 +16,12 @@ public enum ResponseCode {
     USER_NOT_SIGN(2026,"用户尚未签到"),
     USER_DONE_SIGN(2027,"用户今日已签到"),
     USER_DO_SIGN(2028,"用户签到成功"),
+    USER_FOLLOW_STATUS_FALSE(2033,"尚未关注该用户"),
+    USER_FOLLOW_STATUS_TRUE(2034,"已关注该用户"),
+    USER_FOLLOW_ERROR(2035,"关注用户失败"),
+    USER_FOLLOW_SUCCESS(2036,"关注用户成功"),
+    USER_UNFOLLOW_ERROR(2037,"取关用户失败"),
+    USER_UNFOLLOW_SUCCESS(2038,"取关用户成功"),
     // MESSAGE
     MESSAGE_UPLOAD_MULTI_IMAGES_ERROR(2003,"讯息图像上传失败"),
     MESSAGE_UPLOAD_MULTI_IMAGES_SUCCESS(2004,"讯息图像上传成功"),
