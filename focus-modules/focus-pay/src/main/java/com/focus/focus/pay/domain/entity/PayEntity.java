@@ -17,8 +17,11 @@ import java.util.Date;
 public class PayEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @EmbeddedId
-    private PayId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private PayId payId;
 
     @Column(name = "create_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
             insertable = false,updatable = false)
@@ -28,7 +31,7 @@ public class PayEntity implements Serializable {
     @Column(name = "amount_of_coin")
     private Long amountOfCoin;
 
-    @Column(name = "status",length = 10)
+    @Column(name = "status",length = 16)
     @Enumerated(EnumType.STRING)
     private PayStatus status;
 
@@ -38,7 +41,7 @@ public class PayEntity implements Serializable {
     @AllArgsConstructor
     @EqualsAndHashCode(of = {"sourceId","targetId"})
     @ToString(of = {"sourceId","targetId"})
-    private static class PayId implements Serializable{
+    public static class PayId implements Serializable{
         private static final long serialVersionUID = 1L;
 
         /**

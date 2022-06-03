@@ -5,6 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -33,4 +34,10 @@ public interface UserClient {
     // 获取置顶消息Id
     @GetMapping("/getPinnedMessageId")
     Long getPinnedMessageId(@RequestParam("userId") String userId);
+
+    // 打赏,更新双方盾盾币数量
+    @PostMapping("/doReward")
+    Boolean doReward(@RequestParam("sourceId")String sourceId,
+                     @RequestParam("targetId")String targetId,
+                     @RequestParam("amountOfCoin")Long amountOfCoin);
 }

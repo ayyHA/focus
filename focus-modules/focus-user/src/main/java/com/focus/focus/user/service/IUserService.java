@@ -17,4 +17,5 @@ public interface IUserService {
     SignDto signFocus(String userId,Date date);
     Boolean getSignStatus(String userId,Date date);
     Long getPinnedMessageId(String userId);
+    Boolean doReward(String sourceId,String targetId,Long amountOfCoin);
 }

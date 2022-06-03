@@ -18,6 +18,7 @@ import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -249,5 +250,30 @@ public class UserServiceImpl implements IUserService {
                 // bitfield signKey get uDayOffset 0 即获取到今日为止的本月的二进制位
                 connection.bitField(signKey.getBytes(),BitFieldSubCommands.create()
                         .get(BitFieldSubCommands.BitFieldType.unsigned(dayOffset)).valueAt(0)));
+    }
+
+    // 打赏,盾盾币数量进行更新
+    @Transactional
+    public Boolean doReward(String sourceId,String targetId,Long amountOfCoin){
+        Optional<UserEntity> opSourceUser = userRepository.findById(sourceId);
+        if(!opSourceUser.isPresent())
+            return false;
+        UserEntity sourceUser = opSourceUser.get();
+        Optional<UserEntity> opTargetUser = userRepository.findById(targetId);
+        if(!opTargetUser.isPresent())
+            return false;
+        UserEntity targetUser = opTargetUser.get();
+        Long sourceCoin = sourceUser.getDunDunCoin();
+        if(sourceCoin<amountOfCoin){
+            return false;
+        }
+        Long targetCoin = targetUser.getDunDunCoin();
+        sourceCoin -= amountOfCoin;
+        targetCoin += amountOfCoin;
+        sourceUser.setDunDunCoin(sourceCoin);
+        targetUser.setDunDunCoin(targetCoin);
+        userRepository.save(sourceUser);
+        userRepository.save(targetUser);
+        return true;
     }
 }

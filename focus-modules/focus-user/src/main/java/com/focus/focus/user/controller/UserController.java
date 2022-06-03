@@ -176,4 +176,12 @@ public class UserController {
         Long pinnedMessageId = userService.getPinnedMessageId(userId);
         return pinnedMessageId;
     }
+
+    // 打赏,更新双方盾盾币数量
+    @PostMapping("/doReward")
+    public Boolean doReward(@RequestParam("sourceId")String sourceId,
+                            @RequestParam("targetId")String targetId,
+                            @RequestParam("amountOfCoin")Long amountOfCoin){
+        return userService.doReward(sourceId, targetId, amountOfCoin);
+    }
 }

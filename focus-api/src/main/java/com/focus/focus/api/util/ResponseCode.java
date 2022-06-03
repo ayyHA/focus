@@ -47,6 +47,9 @@ public enum ResponseCode {
     CHAT_ZSET_SUCCESS(2022,"聊天列表获取成功"),
     CHAT_HISTORY_ERROR(2023,"历史聊天记录为空"),
     CHAT_HISTORY_SUCCESS(2024,"历史聊天记录获取成功"),
+    // PAY
+    PAY_ERROR(2039,"支付失败"),
+    PAY_SUCCESS(2040,"支付成功"),
     /* ...Repository错误 */
     USER_REPOSITORY_ERROR(3001,"用户DAO层错误"),
     MESSAGE_REPOSITORY_ERROR(3002,"讯息DAO层错误"),
