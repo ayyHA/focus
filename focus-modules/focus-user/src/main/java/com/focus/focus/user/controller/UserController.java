@@ -184,4 +184,11 @@ public class UserController {
                             @RequestParam("amountOfCoin")Long amountOfCoin){
         return userService.doReward(sourceId, targetId, amountOfCoin);
     }
+
+    // 移除置顶消息Id
+    @PostMapping("/removePinnedId")
+    public void removePinnedMessageId(@RequestParam("userId")String userId,
+                                      @RequestParam("messageId")Long messageId){
+        userService.removePinnedMessageId(userId, messageId);
+    }
 }

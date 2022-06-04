@@ -18,4 +18,5 @@ public interface IUserService {
     Boolean getSignStatus(String userId,Date date);
     Long getPinnedMessageId(String userId);
     Boolean doReward(String sourceId,String targetId,Long amountOfCoin);
+    void removePinnedMessageId(String userId,Long messageId);
 }

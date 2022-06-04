@@ -40,4 +40,9 @@ public interface UserClient {
     Boolean doReward(@RequestParam("sourceId")String sourceId,
                      @RequestParam("targetId")String targetId,
                      @RequestParam("amountOfCoin")Long amountOfCoin);
+
+    // 移除置顶消息ID
+    @PostMapping("/removePinnedId")
+    void removePinnedMessageId(@RequestParam("userId")String userId,
+                               @RequestParam("messageId")Long messageId);
 }

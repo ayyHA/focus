@@ -279,6 +279,18 @@ public class MessageServiceImpl implements IMessageService {
         return null;
     }
 
+    @Override
+    public Boolean deleteMessageById(Long messageId) {
+        Optional<MessageEntity> opMessage = messageRepository.findById(messageId);
+        if(opMessage.isPresent()){
+            MessageEntity messageEntity = opMessage.get();
+            userClient.removePinnedMessageId(messageEntity.getAuthorId(),messageId);
+            messageRepository.deleteById(messageId);
+            return true;
+        }
+        return false;
+    }
+
     // 根据userId和pageNum获取对应的MessageEntity
     private Page<MessageEntity> getPageByAuthorIdAndPageNum(String authorId,Integer pageNum){
         // 根据createAt倒序排列

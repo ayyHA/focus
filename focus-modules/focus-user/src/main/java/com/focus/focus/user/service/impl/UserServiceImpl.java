@@ -276,4 +276,18 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(targetUser);
         return true;
     }
+
+    @Override
+    public void removePinnedMessageId(String userId,Long messageId) {
+        Optional<UserEntity> opUser = userRepository.findById(userId);
+        if(opUser.isPresent()){
+            UserEntity entity = opUser.get();
+            Long pinnedMessageId = entity.getPinnedMessageId();
+            if(messageId.equals(pinnedMessageId)){
+                // 将置顶消息ID设为null，若其被删除
+                entity.setPinnedMessageId(null);
+                userRepository.save(entity);
+            }
+        }
+    }
 }

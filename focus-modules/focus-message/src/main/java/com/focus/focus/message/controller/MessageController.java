@@ -132,4 +132,15 @@ public class MessageController {
             return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PINNED_SUCCESS.getCode(),
                     ResponseCode.MESSAGE_PINNED_SUCCESS.getMsg(),pinnedMsgInfoDto));
     }
+
+    // 删除消息
+    @DeleteMapping("/deleteMessageById")
+    public ResponseEntity<ResponseMsg> deleteMessageById(@RequestParam("messageId") Long messageId){
+        Boolean deleteStatus = messageService.deleteMessageById(messageId);
+        if(!deleteStatus)
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_DELETE_ERROR.getCode(),
+                    ResponseCode.MESSAGE_DELETE_ERROR.getMsg(),false));
+        return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_DELETE_SUCCESS.getCode(),
+                ResponseCode.MESSAGE_DELETE_SUCCESS.getMsg(),true));
+    }
 }
