@@ -39,6 +39,8 @@ public enum ResponseCode {
     MESSAGE_PINNED_SUCCESS(2032,"获取置顶讯息成功"),
     MESSAGE_DELETE_ERROR(2039,"消息删除失败"),
     MESSAGE_DELETE_SUCCESS(2040,"消息删除成功"),
+    MESSAGE_OF_REPLY_NONE(2041,"暂无评论消息"),
+    MESSAGE_OF_REPLY_SUCCESS(2042,"评论获取成功"),
     // SEARCH
     SEARCH_KEYWORDS_ERROR(2017,"根据关键字搜索失败"),
     SEARCH_KEYWORDS_SUCCESS(2018,"根据关键字搜索成功"),

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MessagePublicDataRepository extends JpaRepository<MessagePublicDataEntity,Long> {
+//    List<MessagePublicDataEntity> findAllByOrderByMessageIdDesc(Iterable<Long> ids);
 }

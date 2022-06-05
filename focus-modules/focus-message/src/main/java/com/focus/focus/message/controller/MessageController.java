@@ -143,4 +143,19 @@ public class MessageController {
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_DELETE_SUCCESS.getCode(),
                 ResponseCode.MESSAGE_DELETE_SUCCESS.getMsg(),true));
     }
+
+    // 获取评论消息
+    @GetMapping("/getReplies")
+    public ResponseEntity<ResponseMsg> getReplies(@RequestParam("inReplyToAuthorId") String inReplyToAuthorId,
+                                                  @RequestParam("conversationId")Long conversationId){
+        List<MessageInfoDto> replies = messageService.getReplies(inReplyToAuthorId, conversationId);
+        if(null == replies){
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_REPLY_NONE.getCode(),
+                    ResponseCode.MESSAGE_OF_REPLY_NONE.getMsg(),null));
+        }
+        Map<String,List<MessageInfoDto>> infoDtos = new HashMap<>();
+        infoDtos.put("replies",replies);;
+        return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_REPLY_SUCCESS.getCode(),
+                ResponseCode.MESSAGE_OF_REPLY_SUCCESS.getMsg(),infoDtos));
+    }
 }

@@ -16,4 +16,5 @@ public interface IMessageService {
     List<MessageInfoDto> getMsgInfoDtosByAuthorId(String authorId,Integer pageNum);
     MessageInfoDto getPinnedMsgInfoDto(String userId);
     Boolean deleteMessageById(Long messageId);
+    List<MessageInfoDto> getReplies(String inReplyToAuthorId,Long conversationId);
 }

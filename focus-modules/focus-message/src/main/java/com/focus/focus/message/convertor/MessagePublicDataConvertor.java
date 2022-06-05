@@ -13,6 +13,7 @@ public class MessagePublicDataConvertor extends BaseConvertor<MessagePublicDataE
     public Function<MessagePublicDataEntity, MessagePublicDataDto> functionConvertToDTO() {
         return messagePublicDataEntity -> {
             return MessagePublicDataDto.builder()
+                    .id(messagePublicDataEntity.getMessageId())
                     .likeCount(messagePublicDataEntity.getLikeCount())
                     .replyCount(messagePublicDataEntity.getReplyCount())
                     .retweetCount(messagePublicDataEntity.getRetweetCount())

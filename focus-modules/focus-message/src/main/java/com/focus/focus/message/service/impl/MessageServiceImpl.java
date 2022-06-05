@@ -27,9 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 //import com.focus.auth.common.model.LoginVal;
 
@@ -67,7 +65,10 @@ public class MessageServiceImpl implements IMessageService {
        MessageEntity save = messageRepository.save(message);
        if(ObjectUtil.isEmpty(save))
            return false;
-       return true;
+       // 评论型消息则更新评论数【增加】
+       if(save.getType()==MessageTypeEnum.replied_to)
+           incrementReplyCount(save.getConversationId());
+        return true;
     }
 
     @Override
@@ -155,7 +156,12 @@ public class MessageServiceImpl implements IMessageService {
     }
     // 获取MessagePublicDataDtos
     private List<MessagePublicDataDto> getMessagePublicDataDtos(List<Long> ids){
-        List<MessagePublicDataEntity> publicDataEntities = publicDataRepository.findAllById(ids);
+        List<MessagePublicDataEntity> publicDataEntities = new ArrayList<>();
+        ids.forEach(id->{
+            Optional<MessagePublicDataEntity> opEntity = publicDataRepository.findById(id);
+            opEntity.ifPresent(publicDataEntities::add);
+        });
+//        List<MessagePublicDataEntity> publicDataEntities = publicDataRepository.findAllByOrderByMessageIdDesc(ids);
         List<MessagePublicDataDto> publicDataDtos =
                 (List<MessagePublicDataDto>) messagePublicDataConvertor.convertToDTOList(publicDataEntities);
         // 将公共数据写入redis中
@@ -220,10 +226,13 @@ public class MessageServiceImpl implements IMessageService {
             msgIds.add(e.getId());
             likeIds.add(new LikeEntity.LikeId(currentUser.getId(),e.getId()));
         });
+        log.info("msgIds: [{}]",msgIds.toString());
         // 获取messagePublicDataDtos
         List<MessagePublicDataDto> messagePublicDataDtos = getMessagePublicDataDtos(msgIds);
+        log.info("publicDataDtos: [{}]",messagePublicDataDtos.toString());
         // 获取messageStatusDtos
         List<MessageStatusDto> messageStatusDtos = getMessageStatusDtos(likeIds);
+        log.info("statusDtos: [{}]",messageStatusDtos.toString());
         // 获取作者信息
         UserInfoDto authorDto = userClient.getUserInfoDtoById(authorId);
         // 组装MessageInfoDtos
@@ -284,11 +293,51 @@ public class MessageServiceImpl implements IMessageService {
         Optional<MessageEntity> opMessage = messageRepository.findById(messageId);
         if(opMessage.isPresent()){
             MessageEntity messageEntity = opMessage.get();
+            // 若是置顶消息则移除之
             userClient.removePinnedMessageId(messageEntity.getAuthorId(),messageId);
+            // 若是评论型消息则减少一条conversationId的评论数
+            if(messageEntity.getType()==MessageTypeEnum.replied_to){
+                decrementReplyCount(messageEntity.getConversationId());
+            }
+            // 删除本条消息
             messageRepository.deleteById(messageId);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<MessageInfoDto> getReplies(String inReplyToAuthorId, Long conversationId) {
+        List<MessageEntity> entities = messageRepository.
+                findByConversationIdAndInReplyToAuthorId(conversationId, inReplyToAuthorId);
+        if(CollectionUtil.isEmpty(entities)){
+            return null;
+        }
+        Comparator<MessageEntity> timeComparator = (o1,o2) -> {
+                Date d1 = o1.getCreateAt();
+                Date d2 = o2.getCreateAt();
+                if(d1.getTime()>d2.getTime())
+                    return -1;
+                else if(d1.getTime()<d2.getTime())
+                    return 1;
+                else
+                    return 0;
+        };
+        // 对MessageEntities根据createAt进行倒序排序
+        entities.sort(timeComparator);
+        List<String> authorIds = new ArrayList<>();
+        entities.forEach(e->{authorIds.add(e.getAuthorId());});
+        List<UserInfoDto> userInfoDtos = userClient.getUserInfoDtos(authorIds);
+        List<MessageDto> messageDtos = (List<MessageDto>) messageConvertor.convertToDTOList(entities);
+        List<MessageInfoDto> infoDtos = new ArrayList<>();
+        entities.forEach(e ->{
+            int idx = entities.indexOf(e);
+            MessageInfoDto infoDto = MessageInfoDto.builder()
+                    .messageDto(messageDtos.get(idx))
+                    .userInfoDto(userInfoDtos.get(idx)).build();
+            infoDtos.add(infoDto);
+        });
+        return infoDtos;
     }
 
     // 根据userId和pageNum获取对应的MessageEntity
@@ -297,5 +346,26 @@ public class MessageServiceImpl implements IMessageService {
         Sort sort = Sort.by(Sort.Direction.DESC,"createAt");
         PageRequest pageRequest = PageRequest.of(pageNum,2,sort);
         return messageRepository.findByAuthorId(authorId, pageRequest);
+    }
+
+    // 更新评论数【增加】
+    private void incrementReplyCount(Long messageId){
+        Optional<MessagePublicDataEntity> opMessage = publicDataRepository.findById(messageId);
+        if(!opMessage.isPresent())
+            return;
+        MessagePublicDataEntity publicDataEntity = opMessage.get();
+        Long replyCount = publicDataEntity.getReplyCount();
+        publicDataEntity.setReplyCount(replyCount+1);
+        publicDataRepository.save(publicDataEntity);
+    }
+
+    // 更新评论数【减少】
+    private void decrementReplyCount(Long messageId){
+        Optional<MessagePublicDataEntity> opMessage = publicDataRepository.findById(messageId);
+        if(!opMessage.isPresent())
+            return;
+        MessagePublicDataEntity entity = opMessage.get();
+        entity.setReplyCount(entity.getReplyCount()-1);
+        publicDataRepository.save(entity);
     }
 }
