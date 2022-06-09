@@ -70,13 +70,14 @@ public class MessageController {
             return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PUBLISH_ERROR.getCode(),
                     ResponseCode.MESSAGE_PUBLISH_ERROR.getMsg(),null));
         }
-        Boolean res = messageService.save(messageDto);
-        if(!res){
+//        Boolean res = messageService.save(messageDto);
+        MessageInfoDto res = messageService.save(messageDto);
+        if(ObjectUtil.isEmpty(res)){
             return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PUBLISH_ERROR.getCode(),
                     ResponseCode.MESSAGE_PUBLISH_ERROR.getMsg(),null));
         }
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_PUBLISH_SUCCESS.getCode(),
-                ResponseCode.MESSAGE_PUBLISH_SUCCESS.getMsg(),null));
+                ResponseCode.MESSAGE_PUBLISH_SUCCESS.getMsg(),res));
     }
 
     // 展示讯息，目前仅是从数据库分页显示
@@ -157,5 +158,16 @@ public class MessageController {
         infoDtos.put("replies",replies);;
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_REPLY_SUCCESS.getCode(),
                 ResponseCode.MESSAGE_OF_REPLY_SUCCESS.getMsg(),infoDtos));
+    }
+
+    // 获取转发的消息的原文【精简版】
+    @GetMapping("/getRetweetedMessage")
+    public ResponseEntity<ResponseMsg> getRetweetedMessage(@RequestParam("conversationId") Long conversationId){
+        MessageInfoDto retweetedInfoDto = messageService.getRetweetedInfoDto(conversationId);
+        if(ObjectUtil.isEmpty(retweetedInfoDto))
+            return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_RETWEETED_ERROR.getCode(),
+                    ResponseCode.MESSAGE_OF_RETWEETED_ERROR.getMsg(),null));
+        return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_OF_RETWEETED_SUCCESS.getCode(),
+                ResponseCode.MESSAGE_OF_RETWEETED_SUCCESS.getMsg(),retweetedInfoDto));
     }
 }

@@ -51,24 +51,31 @@ public class MessageServiceImpl implements IMessageService {
     private final UserClient userClient;
 
     @Override
-    public Boolean save(MessageDto messageDto) {
+    public MessageInfoDto save(MessageDto messageDto) {
        // 类型转换
        MessageEntity message = messageConvertor.convertToEntity(messageDto);
        // message的类型为回复，但没有指向回复的讯息的作者ID或是讯息ID
-       if(message.getType() == MessageTypeEnum.replied_to &&
+       if((message.getType() == MessageTypeEnum.replied_to ||
+               message.getType() == MessageTypeEnum.retweeted)
+               &&
                (message.getConversationId()==null ||
                 message.getInReplyToAuthorId()==null||
                 message.getInReplyToAuthorId().equals(""))){
-           return false;
+           return null;
        }
        // 持久化
        MessageEntity save = messageRepository.save(message);
        if(ObjectUtil.isEmpty(save))
-           return false;
+           return null;
        // 评论型消息则更新评论数【增加】
        if(save.getType()==MessageTypeEnum.replied_to)
            incrementReplyCount(save.getConversationId());
-        return true;
+       // 转发型消息则更新转发数【增加】
+       if(save.getType() == MessageTypeEnum.retweeted)
+           incrementRetweetCount(save.getConversationId());
+       // 获取messageInfoDto
+        MessageInfoDto messageInfoDto = getMessageInfoDto(save);
+        return messageInfoDto;
     }
 
     @Override
@@ -136,20 +143,22 @@ public class MessageServiceImpl implements IMessageService {
         List<MessageStatusDto> statusDtos = new ArrayList<>();
         likeIds.forEach(likeId ->{
             MessageStatusDto statusDto = new MessageStatusDto();
-            Optional<LikeEntity> opLike = likeRepository.findById(likeId);
-            if(opLike.isPresent()) {
-                LikeEntity likeEntity = opLike.get();
-                LikeStatus likeStatus = likeEntity.getLikeStatus();
-                if(likeStatus==LikeStatus.like)
-                    statusDto.setLikeStatus(true);
-                else
-                    statusDto.setLikeStatus(false);
-                // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
-                redisService.transLikeToRedis(likeEntity);
-            }
-            else
-                statusDto.setLikeStatus(false);
-            statusDto.setRetweetStatus(false); // 后面增加
+            statusDto.setLikeStatus(getLikeStatus(likeId.getUserId(),likeId.getMessageId()));
+            statusDto.setRetweetStatus(getRetweetStatus(likeId.getUserId(),likeId.getMessageId()));
+//            Optional<LikeEntity> opLike = likeRepository.findById(likeId);
+//            if(opLike.isPresent()) {
+//                LikeEntity likeEntity = opLike.get();
+//                LikeStatus likeStatus = likeEntity.getLikeStatus();
+//                if(likeStatus==LikeStatus.like)
+//                    statusDto.setLikeStatus(true);
+//                else
+//                    statusDto.setLikeStatus(false);
+//                // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
+//                redisService.transLikeToRedis(likeEntity);
+//            }
+//            else
+//                statusDto.setLikeStatus(false);
+//            statusDto.setRetweetStatus(false); // 后面增加
             statusDtos.add(statusDto);
         });
         return statusDtos;
@@ -262,22 +271,25 @@ public class MessageServiceImpl implements IMessageService {
             Optional<MessagePublicDataEntity> opPublicDataEntity = publicDataRepository.findById(pinnedMessageId);
             MessagePublicDataEntity messagePublicDataEntity = opPublicDataEntity.get();
             UserInfoDto userInfoDto = userClient.getUserInfoDtoById(userId);
-            Optional<LikeEntity> opLike = likeRepository.findById(new LikeEntity.LikeId(userId, pinnedMessageId));
             MessageStatusDto messageStatusDto = new MessageStatusDto();
-            if(opLike.isPresent()){
-                LikeEntity likeEntity = opLike.get();
-                LikeStatus likeStatus = likeEntity.getLikeStatus();
-                if ((likeStatus == LikeStatus.like)) {
-                    messageStatusDto.setLikeStatus(true);
-                } else {
-                    messageStatusDto.setLikeStatus(false);
-                }
-                // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
-                redisService.transLikeToRedis(likeEntity);
-            }
-            else
-                messageStatusDto.setLikeStatus(false);
-            messageStatusDto.setRetweetStatus(false);
+            messageStatusDto.setLikeStatus(getLikeStatus(userId,pinnedMessageId));
+            messageStatusDto.setRetweetStatus(getRetweetStatus(userId,pinnedMessageId));
+//            Optional<LikeEntity> opLike = likeRepository.findById(new LikeEntity.LikeId(userId, pinnedMessageId));
+//            MessageStatusDto messageStatusDto = new MessageStatusDto();
+//            if(opLike.isPresent()){
+//                LikeEntity likeEntity = opLike.get();
+//                LikeStatus likeStatus = likeEntity.getLikeStatus();
+//                if ((likeStatus == LikeStatus.like)) {
+//                    messageStatusDto.setLikeStatus(true);
+//                } else {
+//                    messageStatusDto.setLikeStatus(false);
+//                }
+//                // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
+//                redisService.transLikeToRedis(likeEntity);
+//            }
+//            else
+//                messageStatusDto.setLikeStatus(false);
+//            messageStatusDto.setRetweetStatus(false);
             return MessageInfoDto.builder()
                     .messageDto(messageConvertor.convertToDTO(messageEntity))
                     .messagePublicDataDto(messagePublicDataConvertor.convertToDTO(messagePublicDataEntity))
@@ -298,6 +310,10 @@ public class MessageServiceImpl implements IMessageService {
             // 若是评论型消息则减少一条conversationId的评论数
             if(messageEntity.getType()==MessageTypeEnum.replied_to){
                 decrementReplyCount(messageEntity.getConversationId());
+            }
+            // 若是转发型消息则减少一条conversationId的转发数
+            if(messageEntity.getType() == MessageTypeEnum.retweeted){
+                decrementRetweetCount(messageEntity.getConversationId());
             }
             // 删除本条消息
             messageRepository.deleteById(messageId);
@@ -340,6 +356,59 @@ public class MessageServiceImpl implements IMessageService {
         return infoDtos;
     }
 
+    @Override
+    public MessageInfoDto getMessageInfoDto(Long messageId) {
+        Optional<MessageEntity> opMessage = messageRepository.findById(messageId);
+        if(!opMessage.isPresent())
+            return null;
+        MessageEntity messageEntity = opMessage.get();
+        Optional<MessagePublicDataEntity> opPublicData = publicDataRepository.findById(messageId);
+        MessagePublicDataEntity publicDataEntity = opPublicData.get();
+        UserInfoDto userInfoDto = userClient.getUserInfoDtoById(messageEntity.getAuthorId());
+        LoginVal loginVal = OauthUtils.getCurrentUser();
+        UserInfoDto currentUser = userClient.getUserInfoDto(loginVal.getUsername());
+        MessageStatusDto statusDto = new MessageStatusDto();
+        statusDto.setLikeStatus(getLikeStatus(currentUser.getId(),messageId));
+        statusDto.setRetweetStatus(getRetweetStatus(currentUser.getId(),messageId));
+        return MessageInfoDto.builder().messageDto(messageConvertor.convertToDTO(messageEntity))
+                .messagePublicDataDto(messagePublicDataConvertor.convertToDTO(publicDataEntity))
+                .userInfoDto(userInfoDto)
+                .messageStatusDto(statusDto).build();
+    }
+
+    // 专供publish用
+    @Override
+    public MessageInfoDto getMessageInfoDto(MessageEntity entity) {
+        Long messageId = entity.getId();
+        Optional<MessagePublicDataEntity> opPublicData = publicDataRepository.findById(messageId);
+        MessagePublicDataEntity publicDataEntity = opPublicData.get();
+        String authorId = entity.getAuthorId();
+        UserInfoDto userInfoDto = userClient.getUserInfoDtoById(authorId);
+        MessageStatusDto messageStatusDto = new MessageStatusDto();
+        messageStatusDto.setLikeStatus(getLikeStatus(authorId,messageId));
+        messageStatusDto.setRetweetStatus(getRetweetStatus(authorId,messageId));
+        return MessageInfoDto.builder()
+                .messageDto(messageConvertor.convertToDTO(entity))
+                .messagePublicDataDto(messagePublicDataConvertor.convertToDTO(publicDataEntity))
+                .userInfoDto(userInfoDto)
+                .messageStatusDto(messageStatusDto)
+                .build();
+    }
+
+    @Override
+    public MessageInfoDto getRetweetedInfoDto(Long conversationId) {
+        Optional<MessageEntity> opMessage = messageRepository.findById(conversationId);
+        if(opMessage.isPresent()){
+            MessageEntity messageEntity = opMessage.get();
+            String authorId = messageEntity.getAuthorId();
+            UserInfoDto userInfoDto = userClient.getUserInfoDtoById(authorId);
+            return MessageInfoDto.builder()
+                    .messageDto(messageConvertor.convertToDTO(messageEntity))
+                    .userInfoDto(userInfoDto).build();
+        }
+        return null;
+    }
+
     // 根据userId和pageNum获取对应的MessageEntity
     private Page<MessageEntity> getPageByAuthorIdAndPageNum(String authorId,Integer pageNum){
         // 根据createAt倒序排列
@@ -367,5 +436,43 @@ public class MessageServiceImpl implements IMessageService {
         MessagePublicDataEntity entity = opMessage.get();
         entity.setReplyCount(entity.getReplyCount()-1);
         publicDataRepository.save(entity);
+    }
+
+    // 更新转发数【增加】 这里的messageId是type为retweeted里的conversationId
+    private void incrementRetweetCount(Long messageId){
+        Optional<MessagePublicDataEntity> opEntity = publicDataRepository.findById(messageId);
+        if(!opEntity.isPresent())
+            return;
+        MessagePublicDataEntity entity = opEntity.get();
+        entity.setRetweetCount(entity.getRetweetCount()+1);
+        publicDataRepository.save(entity);
+    }
+
+    // 更新转发数【减少】
+    private void decrementRetweetCount(Long messageId) {
+        Optional<MessagePublicDataEntity> opEntity = publicDataRepository.findById(messageId);
+        if (!opEntity.isPresent())
+            return;
+        MessagePublicDataEntity e = opEntity.get();
+        e.setRetweetCount(e.getRetweetCount()-1);
+        publicDataRepository.save(e);
+    }
+
+    private Boolean getLikeStatus(String userId,Long messageId){
+        LikeEntity.LikeId likeId = new LikeEntity.LikeId(userId,messageId);
+        Optional<LikeEntity> opLike = likeRepository.findById(likeId);
+        if(opLike.isPresent()){
+            LikeEntity likeEntity = opLike.get();
+            LikeStatus likeStatus = likeEntity.getLikeStatus();
+            // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
+            redisService.transLikeToRedis(likeEntity);
+            return likeStatus == LikeStatus.like;
+        }
+        return false;
+    }
+
+    private Boolean getRetweetStatus(String authorId,Long conversationId){
+        MessageEntity e = messageRepository.findByAuthorIdAndConversationIdAndType(authorId, conversationId, MessageTypeEnum.retweeted);
+        return !ObjectUtil.isEmpty(e);
     }
 }
