@@ -63,4 +63,6 @@ public class LikeController {
         return ResponseEntity.ok(new ResponseMsg(ResponseCode.MESSAGE_SHOW_SUCCESS.getCode(),
                 ResponseCode.MESSAGE_SHOW_SUCCESS.getMsg(),data));
     }
+
+    // 获取实时的点赞数量
 }

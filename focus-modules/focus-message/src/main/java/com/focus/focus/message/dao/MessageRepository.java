@@ -14,6 +14,7 @@ public interface MessageRepository extends JpaRepository<MessageEntity,Long> {
     List<MessageEntity> findByAuthorId(String userId);
     List<MessageEntity> findByKeywordsContaining(String keywords);
     Page<MessageEntity> findByAuthorId(String authorId, Pageable pageable);
-    List<MessageEntity> findByConversationIdAndInReplyToAuthorId(Long conversationId,String inReplyToAuthorId);
+    List<MessageEntity> findByConversationIdAndInReplyToAuthorIdAndType(Long conversationId,String inReplyToAuthorId,MessageTypeEnum type);
     MessageEntity findByAuthorIdAndConversationIdAndType(String authorId, Long conversationId, MessageTypeEnum type);
+    Page<MessageEntity> findByTypeNot(MessageTypeEnum type, Pageable pageable);
 }

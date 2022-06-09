@@ -51,7 +51,9 @@ public class RedisServiceImpl implements IRedisService {
         if(redisTemplate.opsForHash().get(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId)==null){
             redisTemplate.opsForHash().put(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId,likeCount);
         }
-        redisTemplate.opsForHash().increment(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId,1L);
+        else {
+            redisTemplate.opsForHash().increment(RedisKeyUtil.HASH_KEY_LIKE_COUNT, msgId, 1L);
+        }
         Integer lcnt = (Integer) redisTemplate.opsForHash().get(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId);
         return lcnt.longValue();
     }
@@ -62,7 +64,9 @@ public class RedisServiceImpl implements IRedisService {
         if(redisTemplate.opsForHash().get(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId)==null){
             redisTemplate.opsForHash().put(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId,likeCount);
         }
-        redisTemplate.opsForHash().increment(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId,-1L);
+        else{
+            redisTemplate.opsForHash().increment(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId,-1L);
+        }
         Integer lcnt = (Integer) redisTemplate.opsForHash().get(RedisKeyUtil.HASH_KEY_LIKE_COUNT,msgId);
         return lcnt.longValue();
     }

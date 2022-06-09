@@ -80,9 +80,12 @@ public class MessageServiceImpl implements IMessageService {
 
     @Override
     public List<MessageInfoDto> showMessage(Integer page) {
+        // 根据createAt进行倒序排序
+        Sort sort = Sort.by(Sort.Direction.DESC,"createAt");
         // 分页查询，一页5条讯息 page->offset,size->limit
-        PageRequest pageRequest = PageRequest.of(page,2);
-        Page<MessageEntity> pageOfMessages = messageRepository.findAll(pageRequest);
+        PageRequest pageRequest = PageRequest.of(page,2,sort);
+//        Page<MessageEntity> pageOfMessages = messageRepository.findAll(pageRequest);
+        Page<MessageEntity> pageOfMessages = messageRepository.findByTypeNot(MessageTypeEnum.replied_to,pageRequest);
         List<MessageEntity> messageList = pageOfMessages.getContent();
         // 设置最大页数和当前message总数
         int maxPages = pageOfMessages.getTotalPages();
@@ -174,9 +177,9 @@ public class MessageServiceImpl implements IMessageService {
         List<MessagePublicDataDto> publicDataDtos =
                 (List<MessagePublicDataDto>) messagePublicDataConvertor.convertToDTOList(publicDataEntities);
         // 将公共数据写入redis中
-        publicDataEntities.forEach(publicDataEntity -> {
-            redisService.transLikeCountToRedis(publicDataEntity);
-        });
+//        publicDataEntities.forEach(publicDataEntity -> {
+//            redisService.transLikeCountToRedis(publicDataEntity);
+//        });
         return publicDataDtos;
     }
 
@@ -325,7 +328,7 @@ public class MessageServiceImpl implements IMessageService {
     @Override
     public List<MessageInfoDto> getReplies(String inReplyToAuthorId, Long conversationId) {
         List<MessageEntity> entities = messageRepository.
-                findByConversationIdAndInReplyToAuthorId(conversationId, inReplyToAuthorId);
+                findByConversationIdAndInReplyToAuthorIdAndType(conversationId, inReplyToAuthorId,MessageTypeEnum.replied_to);
         if(CollectionUtil.isEmpty(entities)){
             return null;
         }
@@ -465,7 +468,7 @@ public class MessageServiceImpl implements IMessageService {
             LikeEntity likeEntity = opLike.get();
             LikeStatus likeStatus = likeEntity.getLikeStatus();
             // 将点赞数据写入redis中（注：要本来就存在于数据库中，即你得点赞/取消点赞过）
-            redisService.transLikeToRedis(likeEntity);
+//            redisService.transLikeToRedis(likeEntity);
             return likeStatus == LikeStatus.like;
         }
         return false;
